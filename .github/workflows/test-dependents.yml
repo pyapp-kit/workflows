@@ -1,0 +1,81 @@
+# workflow to test packages that depend on your package
+# use `package_to_test_ref` to specify the dependent package repo 
+name: Test dependents
+
+on:
+  workflow_call:
+    inputs:
+      package_to_test:
+        required: true
+        type: string
+        description: Repository name with owner of package to test (org/repo).
+      package_to_test_ref:
+        required: false
+        type: string
+        default: ""
+        description: Ref to checkout in package to test. Defaults to default branch.
+      python-version:
+        required: false
+        type: string
+        default: "3.x"
+      os:
+        required: false
+        type: string
+        default: ubuntu-latest
+      host-extras:
+        required: false
+        type: string
+        default: "test"
+        description: Extras to install for host repo.
+      package-extras:
+        required: false
+        type: string
+        default: ""
+        description: Extras to install for package to test.
+      post_install_cmd:
+        required: false
+        type: string
+        default: ""
+        description: Command to run after installing dependencies.
+      pytest-args:
+        required: false
+        type: string
+        default: ""
+        description: Arguments to pass to pytest.
+
+jobs:
+  test:
+    name: ${{ inputs.os }} py${{ inputs.python-version }}
+    runs-on: ${{ inputs.os }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: host_repo
+          fetch-tags: true
+
+      - uses: actions/checkout@v4
+        if: ${{ inputs.package_to_test != '' }}
+        with:
+          path: package_to_test
+          repository: ${{ inputs.package_to_test }}
+          ref: ${{ inputs.package_to_test_ref }}
+          fetch-depth: 0
+
+      - name: Set up Python ${{ inputs.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ inputs.python-version }}
+
+      - name: Install dependencies
+        run: |
+          python -m pip install -U pip
+          python -m pip install ./package_to_test[${{ inputs.host-extras }}]
+          python -m pip install ./host_repo[${{ inputs.package-extras }}]
+
+      - name: Post install
+        if: ${{ inputs.post_install_cmd != '' }}
+        run: ${{ inputs.post_install_cmd }}
+
+      - name: Run tests
+        run: python -m pytest --color=yes ${{ inputs.pytest-args }}
+        working-directory: package_to_test
