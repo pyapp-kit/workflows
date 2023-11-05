@@ -90,7 +90,7 @@ jobs:
 
       - name: Run tests
         if: ${{ inputs.qt == '' }}
-        run: python -m pytest --color=yes ${{ inputs.pytest-args }}
+        run: python -m pytest --color=yes -W default ${{ inputs.pytest-args }}
         working-directory: package_to_test
 
       - name: Run (headless) tests
@@ -98,5 +98,4 @@ jobs:
         uses: aganders3/headless-gui@v1
         with:
           working-directory: package_to_test
-          run: python -m pytest --color=yes ${{ inputs.pytest-args }}
-
+          run: python -m pytest --color=yes -W default ${{ inputs.pytest-args }}
