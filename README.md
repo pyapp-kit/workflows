@@ -2,12 +2,12 @@
 
 ### Run python tests
 
-[`uses: pyapp-kit/workflows/.github/workflows/test.yml@main`](.github/workflows/test-pyrepo.yml)
+[`uses: pyapp-kit/workflows/.github/workflows/test-pyrepo.yml@main`](.github/workflows/test-pyrepo.yml)
 
 Standard workflow to setup python and test a python package.
 
 ```yaml
-    uses: pyapp-kit/workflows/.github/workflows/test_pyrepo.yml@main
+    uses: pyapp-kit/workflows/.github/workflows/test-pyrepo.yml@main
 ```
 
 See options in [`test-pyrepo.yml`](.github/workflows/test-pyrepo.yml#L5-L60)
@@ -21,7 +21,7 @@ name: CI
 
 jobs:
   run_tests:
-    uses: pyapp-kit/workflows/.github/workflows/test_pyrepo.yml@main
+    uses: pyapp-kit/workflows/.github/workflows/test-pyrepo.yml@main
     strategy:
       fail-fast: false
       matrix:
