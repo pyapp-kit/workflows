@@ -22,14 +22,14 @@ name: CI
 jobs:
   run_tests:
     uses: pyapp-kit/workflows/.github/workflows/test-pyrepo.yml@main
+    with:
+      os: ${{ matrix.os }}
+      python-version: ${{ matrix.python-version }}
     strategy:
       fail-fast: false
       matrix:
         python-version: ["3.10", "3.11", "3.12"]
         os: [ubuntu-latest, macos-latest, windows-latest]
-    with:
-      os: ${{ matrix.os }}
-      python-version: ${{ matrix.python-version }}
 ```
 
 </details>
