@@ -14,21 +14,33 @@ on:
       extras:
         required: false
         type: string
-        default: "test"
+        default: test
       pip-install-flags:
         required: false
         type: string
         default: ""
-        description: "Flags to pass to pip install. Can be used for --editable, --pre, --no-deps, etc."
-      pip-force-installs:
+        description: "Flags to pass to pip install. Can be used for --editable, --no-deps, etc."
+      pip-pre:
+        required: false
+        type: boolean
+        default: false
+        description: "Whether to install pre-releases in the pip install phase."
+        # example >>> pip-pre: github.event_name == 'schedule'
+      pip-pre-installs:
         required: false
         type: string
         default: ""
-        description: "Packages to force install. Will be installed after `pip install .[extras]`"
+        description: "Packages to install before `pip install .[extras]`"
+      pip-post-installs:
+        required: false
+        type: string
+        default: ""
+        description: "Packages to install after `pip install .[extras]`"
       qt:
         required: false
         type: string
         default: ""
+        description: "Version of Qt to install."
       fetch-depth:
         required: false
         type: number
@@ -58,6 +70,12 @@ on:
         type: boolean
         default: false
         description: "Enable build hooks for Hatch."
+      report-failures:
+        required: false
+        type: boolean
+        default: false
+        description: "Whether to create a GitHub issue when a test fails. Good for cron jobs."
+        # example >>> report-failures: github.event_name == 'schedule'
 
 jobs:
   test:
@@ -82,14 +100,22 @@ jobs:
         if: ${{ inputs.qt != '' }}
         uses: tlambert03/setup-qt-libs@v1
 
+      - name: Pip pre-install
+        if: ${{ inputs.pip-pre-installs != '' }}
+        run: python -m pip install ${{ inputs.pip-pre-installs }}
+
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           python -m pip install ${{ inputs.pip-install-flags }} .[${{ inputs.extras }}]
+        env:
+          # common usage might be:
+          #   pip-pre: github.event_name == 'schedule'
+          PIP_PRE: ${{ inputs.pip-pre }}
 
-      - name: Force install
-        if: ${{ inputs.pip-force-installs != '' }}
-        run: python -m pip install ${{ inputs.pip-force-installs }} --force-reinstall
+      - name: Pip post-install
+        if: ${{ inputs.pip-post-installs != '' }}
+        run: python -m pip install ${{ inputs.pip-post-installs }} --force-reinstall
 
       - name: Install Qt (${{ inputs.qt }})
         if: ${{ inputs.qt != '' }}
@@ -104,6 +130,28 @@ jobs:
         uses: aganders3/headless-gui@v1
         with:
           run: python -m pytest --color=yes ${{ inputs.pytest-cov-flags }} ${{ inputs.pytest-args }}
+
+      - name: Report failure
+        # common usage might be: report-failures: github.event_name == 'schedule'
+        if: ${{ failure() && inputs.report-failures }}
+        uses: actions/github-script@v6
+        env:
+          ACTION_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        with:
+          script: |
+            const { ACTION_URL } = process.env
+
+            const issueTitle = 'Tests failing';
+            const issueBody = `A test failed. Please review the [workflow logs](${actionUrl}) for details.`;
+            const labels = ['reusable-test-failure'];
+
+            github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: issueTitle,
+              body: issueBody,
+              labels: labels
+            });
 
       - name: Coverage
         if: ${{ inputs.pytest-cov-flags != '' }}
