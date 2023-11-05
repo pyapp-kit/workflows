@@ -77,8 +77,11 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install -U pip
-          python -m pip install ./host_repo[${{ inputs.host-extras }}]
           python -m pip install ./package_to_test[${{ inputs.package-extras }}]
+          echo "##############################################################"
+          # because package_to_test likely depends on host_repo,
+          # we put this second so that the version in host_repo is used
+          python -m pip install ./host_repo[${{ inputs.host-extras }}]
 
       - name: Install Qt (${{ inputs.qt }})
         if: ${{ inputs.qt != '' }}
