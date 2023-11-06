@@ -142,7 +142,7 @@ jobs:
           script: |
             const { ACTION_URL, WORKFLOW_NAME } = process.env
 
-            const issueTitle = 'Tests failing in ${WORKFLOW_NAME}';
+            const issueTitle = `Tests failing in ${WORKFLOW_NAME}`;
             const labels = ['reusable-test-failure'];
 
             // Search for existing open issues with the same title and label
