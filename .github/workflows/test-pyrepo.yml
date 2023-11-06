@@ -142,7 +142,7 @@ jobs:
             const { ACTION_URL } = process.env
 
             const issueTitle = 'Tests failing';
-            const issueBody = `A test failed. Please review the [workflow logs](${actionUrl}) for details.`;
+            const issueBody = `A test failed. Please review the [workflow logs](${ACTION_URL}) for details.`;
             const labels = ['reusable-test-failure'];
 
             github.rest.issues.create({
