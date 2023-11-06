@@ -155,9 +155,10 @@ jobs:
 
             // If there is an open issue with the title, do not create a new one
             const hasOpenIssue = existingIssues.data.some(issue => issue.title === issueTitle);
-            if (!hasOpenIssue) {
+            if (hasOpenIssue) {
+              console.log('An open issue with the same title and label already exists. No new issue will be created.');
+            } else {
               const issueBody = `A test failed. Please review the [workflow logs](${ACTION_URL}) for details.`;
-
               github.rest.issues.create({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
@@ -165,6 +166,7 @@ jobs:
                 body: issueBody,
                 labels: labels
               });
+              console.log('A new issue was created to report a failing test.');
             }
 
       - name: Coverage
