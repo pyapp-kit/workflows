@@ -130,14 +130,14 @@ would like to ensure that your changes don't break those packages.
 <!-- deps-table -->
 | Input | Type | Default | Description |
 | --- | --- | --- | --- |
-| package_to_test | string | '' | Repository name with owner of package to test (org/repo). |
-| package_to_test_ref | string | '' | Ref to checkout in package to test. Defaults to default branch. |
+| package-to-test | string | '' | Repository name with owner of package to test (org/repo). |
+| package-to-test-ref | string | '' | Ref to checkout in package to test. Defaults to default branch. |
 | python-version | string | '3.x' |  |
 | os | string | 'ubuntu-latest' |  |
 | host-extras | string | '' | Extras to install for host repo. |
 | package-extras | string | '' | Extras to install for package to test. |
 | qt | string | '' | Version of Qt to install. |
-| post_install_cmd | string | '' | Command to run after installing dependencies. |
+| post-install-cmd | string | '' | Command to run after installing dependencies. |
 | pytest-args | string | '' | Arguments to pass to pytest. |
 <!-- /deps-table -->
 
