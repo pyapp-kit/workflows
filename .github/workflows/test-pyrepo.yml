@@ -136,7 +136,7 @@ jobs:
         if: ${{ failure() && inputs.report-failures }}
         uses: actions/github-script@v6
         env:
-          ACTION_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}/job/${{ github.job }}
+          ACTION_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
           WORKFLOW_NAME: ${{ github.workflow }}
         with:
           script: |
