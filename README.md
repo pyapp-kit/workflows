@@ -5,6 +5,9 @@ This repo contains a set of reusable workflows for use in GitHub Actions.
 They are used by repos in the pyapp-kit organization, but you may use them
 as well if you find them useful for your own projects.
 
+1. [test-pyrepo.yml](#run-python-tests) - use to run tests for your python package
+2. [test-dependents.yml](#test-dependent-packages) - use to test that updates to your package don't break another package that depends on your package
+
 ## Run python tests
 
 [`uses: pyapp-kit/workflows/.github/workflows/test-pyrepo.yml@v1`](.github/workflows/test-pyrepo.yml)
