@@ -25,7 +25,7 @@ on:
       host-extras:
         required: false
         type: string
-        default: "test"
+        default: ""
         description: Extras to install for host repo.
       package-extras:
         required: false
