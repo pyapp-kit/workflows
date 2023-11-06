@@ -115,6 +115,15 @@ jobs:
 
 ## Test Dependent Packages
 
+[`uses: pyapp-kit/workflows/.github/workflows/test-dependents.yml@v1`](.github/workflows/test-dependents.yml)
+
+This workflow is useful when your package is a dependency of other packages, and you
+would like to ensure that your changes don't break those packages.
+
+```yaml
+    uses: pyapp-kit/workflows/.github/workflows/test-dependents.yml@v1
+```
+
 <!-- deps-table -->
 | Input | Type | Default | Description |
 | --- | --- | --- | --- |
@@ -128,3 +137,29 @@ jobs:
 | post_install_cmd | string | '' | Command to run after installing dependencies. |
 | pytest-args | string | '' | Arguments to pass to pytest. |
 <!-- /deps-table -->
+
+### Example dependecy test
+
+Here's an example where package Package B depends on Package A.
+
+This workflow would go into Package A's repository, and tests that changes made to Package A don't break
+Package B.
+
+```yaml
+name: CI
+
+jobs:
+  test-package-b:
+    uses: pyapp-kit/workflows/.github/workflows/test-dependents.yml@v1
+    with:
+      os: ${{ matrix.os }}
+      python-version: ${{ matrix.python-version }}
+      package_to_test: some-org/package-b
+      package_to_test_ref: ${{ matrix.package-b-version }}
+      package-extras: "test"  # package B's test extras
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        python-version: ["3.10", "3.12"]
+        package-b-version: ["", "v0.5.0"]
+```
