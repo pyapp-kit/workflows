@@ -7,40 +7,43 @@ on:
         required: false
         type: string
         default: "3.x"
+        description: "Python version to use. Passed to `actions/setup-python`."
       os:
         required: false
         type: string
         default: ubuntu-latest
+        description: "Operating system to use. Passed to `runs-on:`."
       extras:
         required: false
         type: string
         default: test
+        description: "Package extras to install (may use commas for multiples `'test,docs'`). If you don't have an extra named 'test' you should change this."
       pip-install-flags:
         required: false
         type: string
         default: ""
-        description: "Flags to pass to pip install. Can be used for --editable, --no-deps, etc."
+        description: "Additional flags to pass to pip install. Can be used for `--editable`, `--no-deps`, etc."
       pip-install-pre-release:
         required: false
         type: boolean
         default: false
-        description: "Whether to install pre-releases in the pip install phase."
+        description: "Whether to install pre-releases in the pip install phase with `--pre`"
         # example >>> pip-install-pre-release: github.event_name == 'schedule'
       pip-pre-installs:
         required: false
         type: string
         default: ""
-        description: "Packages to install before `pip install .[extras]`"
+        description: "Packages to install *before* calling `pip install .`"
       pip-post-installs:
         required: false
         type: string
         default: ""
-        description: "Packages to install after `pip install .[extras]`"
+        description: "Packages to install *after* `pip install .`. (these are called with `--force-reinstall`.)"
       qt:
         required: false
         type: string
         default: ""
-        description: "Version of Qt to install."
+        description: "Version of qt to install (or none if blank).  Will also install qt-libs and run tests headlessly if not blank."
       fetch-depth:
         required: false
         type: number
@@ -50,26 +53,27 @@ on:
         required: false
         type: string
         default: "pyproject.toml"
+        description: "passed to `actions/setup-python`"
       pytest-args:
         required: false
         type: string
         default: ""
-        description: "Arguments to pass to pytest. Can be used for -k, -m, -x, etc."
+        description: "Additional arguments to pass to pytest. Can be used to specify paths or for for `-k`, `-x`, etc."
       pytest-cov-flags:
         required: false
         type: string
         default: "--cov --cov-report=xml --cov-report=term-missing"
-        description: "Flags to pass to pytest-cov. Can be used for --cov-fail-under, --cov-branch, etc."
+        description: "Flags to pass to pytest-cov. Can be used for `--cov-fail-under`, `--cov-branch`, etc. Note: it's best to specify `[tool.coverage.run] source = ['your_package']`."
       fail-on-coverage-error:
         required: false
         type: boolean
         default: true
-        description: "Fail the build if coverage fails."
+        description: "Fail the build if codecov action fails."
       hatch-build-hooks-enable:
         required: false
         type: boolean
         default: false
-        description: "Enable build hooks for Hatch."
+        description: "Value for [`HATCH_BUILD_HOOKS_ENABLE`](https://hatch.pypa.io/latest/config/build/#environment-variables)."
       report-failures:
         required: false
         type: boolean
