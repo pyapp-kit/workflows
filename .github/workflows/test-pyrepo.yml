@@ -136,22 +136,36 @@ jobs:
         if: ${{ failure() && inputs.report-failures }}
         uses: actions/github-script@v6
         env:
-          ACTION_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          ACTION_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}/job/${{ github.job }}
+          WORKFLOW_NAME: ${{ github.workflow }}
         with:
           script: |
-            const { ACTION_URL } = process.env
+            const { ACTION_URL, WORKFLOW_NAME } = process.env
 
-            const issueTitle = 'Tests failing';
-            const issueBody = `A test failed. Please review the [workflow logs](${ACTION_URL}) for details.`;
+            const issueTitle = 'Tests failing in ${WORKFLOW_NAME}';
             const labels = ['reusable-test-failure'];
 
-            github.rest.issues.create({
+            // Search for existing open issues with the same title and label
+            const existingIssues = await github.rest.issues.listForRepo({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              title: issueTitle,
-              body: issueBody,
-              labels: labels
+              labels: labels.join(','),
+              state: 'open'
             });
+
+            // If there is an open issue with the title, do not create a new one
+            const hasOpenIssue = existingIssues.data.some(issue => issue.title === issueTitle);
+            if (!hasOpenIssue) {
+              const issueBody = `A test failed. Please review the [workflow logs](${ACTION_URL}) for details.`;
+
+              github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: issueTitle,
+                body: issueBody,
+                labels: labels
+              });
+            }
 
       - name: Coverage
         if: ${{ inputs.pytest-cov-flags != '' }}
