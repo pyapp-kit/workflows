@@ -6,17 +6,25 @@ They are used by repos in the pyapp-kit organization, but you may use them
 as well if you find them useful for your own projects.
 
 1. [test-pyrepo.yml](#run-python-tests) - use to run tests for your python package
-2. [test-dependents.yml](#test-dependent-packages) - use to test that updates to your package don't break another package that depends on your package
+2. [test-dependents.yml](#test-dependent-packages) - use to test that updates to your
+   package don't break another package that depends on your package
 
 ## Run python tests
 
 [`uses: pyapp-kit/workflows/.github/workflows/test-pyrepo.yml@v1`](.github/workflows/test-pyrepo.yml)
 
-Standard workflow to setup python and test a python package.
+Standard workflow to setup python and test a python package, in the following order:
 
-```yaml
-    uses: pyapp-kit/workflows/.github/workflows/test-pyrepo.yml@v1
-```
+1. Checks out the repo using [`actions/checkout`](https://github.com/actions/checkout) with `inputs.fetch-depth`
+2. Runs [`actions/setup-python`](https://github.com/actions/setup-python) with `python-version`
+3. If `inputs.qt != ''`: Installs Qt libs using [tlambert03/setup-qt-libs](https://github.comtlambert03/setup-qt-libs)
+4. Installs dependencies using `pip install .[extras]`
+5. Runs `pytest --cov --cov-report=xml inputs.pytest-args` unless overridden.
+   - If `inputs.qt != ''`: Runs headlessly using [`aganders3/headless-gui`](https://github.com/actions/aganders3/headless-gui)
+6. Uploads coverage reports using [`codecov/codecov-action`](https://github.com/codecov/codecov-action)
+7. If `report-failures != ''` Opens an issue to report failures.  Useful for cron jobs for pre-release testing.
+
+### Inputs
 
 (All inputs are optional)
 
@@ -123,9 +131,17 @@ jobs:
 This workflow is useful when your package is a dependency of other packages, and you
 would like to ensure that your changes don't break those packages.
 
-```yaml
-    uses: pyapp-kit/workflows/.github/workflows/test-dependents.yml@v1
-```
+1. Checks out the "host" repo (the repo using this workflow) using [`actions/checkout`](https://github.com/actions/checkout).
+2. Checks out `dependency-repo` @ `dependency-ref` using [`actions/checkout`](https://github.com/actions/checkout).
+3. Runs [`actions/setup-python`](https://github.com/actions/setup-python) with `python-version`
+4. If `inputs.qt != ''`: Installs Qt libs using [tlambert03/setup-qt-libs](https://github.comtlambert03/setup-qt-libs)
+5. Installs dependencies for `dependency-repo` followed by the host repo.
+6. Runs `pytest inputs.pytest-args` (add specific paths or `-k` flags here)
+   - If `inputs.qt != ''`: Runs headlessly using [`aganders3/headless-gui`](https://github.com/actions/aganders3/headless-gui)
+
+### Inputs
+
+(Only `dependency-repo` is required)
 
 <!-- deps-table -->
 | Input | Type | Default | Description |
@@ -157,7 +173,7 @@ jobs:
     with:
       os: ${{ matrix.os }}
       python-version: ${{ matrix.python-version }}
-      dependency: some-org/package-b
+      dependency-repo: some-org/package-b
       dependency-ref: ${{ matrix.package-b-version }}
       package-extras: "test"  # package B's test extras
     strategy:
