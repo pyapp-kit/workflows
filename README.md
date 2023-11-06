@@ -7,12 +7,12 @@ as well if you find them useful for your own projects.
 
 ## Run python tests
 
-[`uses: pyapp-kit/workflows/.github/workflows/test-pyrepo.yml@main`](.github/workflows/test-pyrepo.yml)
+[`uses: pyapp-kit/workflows/.github/workflows/test-pyrepo.yml@v1`](.github/workflows/test-pyrepo.yml)
 
 Standard workflow to setup python and test a python package.
 
 ```yaml
-    uses: pyapp-kit/workflows/.github/workflows/test-pyrepo.yml@main
+    uses: pyapp-kit/workflows/.github/workflows/test-pyrepo.yml@v1
 ```
 
 (All inputs are optional)
