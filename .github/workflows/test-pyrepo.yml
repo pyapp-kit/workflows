@@ -20,12 +20,12 @@ on:
         type: string
         default: ""
         description: "Flags to pass to pip install. Can be used for --editable, --no-deps, etc."
-      pip-pre:
+      pip-install-pre-release:
         required: false
         type: boolean
         default: false
         description: "Whether to install pre-releases in the pip install phase."
-        # example >>> pip-pre: github.event_name == 'schedule'
+        # example >>> pip-install-pre-release: github.event_name == 'schedule'
       pip-pre-installs:
         required: false
         type: string
@@ -110,8 +110,8 @@ jobs:
           python -m pip install ${{ inputs.pip-install-flags }} .[${{ inputs.extras }}]
         env:
           # common usage might be:
-          #   pip-pre: github.event_name == 'schedule'
-          PIP_PRE: ${{ inputs.pip-pre }}
+          #   pip-install-pre-release: github.event_name == 'schedule'
+          PIP_PRE: ${{ inputs.pip-install-pre-release }}
 
       - name: Install Qt (${{ inputs.qt }})
         if: ${{ inputs.qt != '' }}
