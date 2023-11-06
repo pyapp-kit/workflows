@@ -27,7 +27,7 @@ Standard workflow to setup python and test a python package.
 | os | string | 'ubuntu-latest' | Operating system to use. Passed to `runs-on:`. |
 | extras | string | 'test' | Package extras to install (may use commas for multiples `'test,docs'`). If you don't have an extra named 'test' you should change this. |
 | pip-install-flags | string | '' | Additional flags to pass to pip install. Can be used for `--editable`, `--no-deps`, etc. |
-| pip-install-pre-release | boolean | False | Whether to install pre-releases in the pip install phase with `--pre` |
+| pip-install-pre-release | boolean | False | Whether to install pre-releases in the pip install phase with `--pre`. |
 | pip-pre-installs | string | '' | Packages to install *before* calling `pip install .` |
 | pip-post-installs | string | '' | Packages to install *after* `pip install .`. (these are called with `--force-reinstall`.) |
 | qt | string | '' | Version of qt to install (or none if blank).  Will also install qt-libs and run tests headlessly if not blank. |
@@ -130,15 +130,15 @@ would like to ensure that your changes don't break those packages.
 <!-- deps-table -->
 | Input | Type | Default | Description |
 | --- | --- | --- | --- |
-| package-to-test | string | '' | Repository name with owner of package to test (org/repo). |
-| package-to-test-ref | string | '' | Ref to checkout in package to test. Defaults to default branch. |
-| python-version | string | '3.x' |  |
-| os | string | 'ubuntu-latest' |  |
-| host-extras | string | '' | Extras to install for host repo. |
-| package-extras | string | '' | Extras to install for package to test. |
+| dependency-repo | string | '' | Repository name with owner of package to test (org/repo). |
+| dependency-ref | string | '' | Ref to checkout in dependency-repo. Defaults to HEAD in default branch. |
+| python-version | string | '3.x' | Python version to use. Passed to `actions/setup-python`. |
+| os | string | 'ubuntu-latest' | Operating system to use. Passed to `runs-on:`. |
+| host-extras | string | '' | Extras to use when installing host (package running this workflow). |
+| dependency-extras | string | '' | Extras to use when installing dependency-repo. |
 | qt | string | '' | Version of Qt to install. |
-| post-install-cmd | string | '' | Command to run after installing dependencies. |
-| pytest-args | string | '' | Arguments to pass to pytest. |
+| post-install-cmd | string | '' | Command(s) to run after installing dependencies. |
+| pytest-args | string | '' | Additional arguments to pass to pytest. Can be used to specify paths or for for `-k`, `-x`, etc. |
 <!-- /deps-table -->
 
 ### Example dependecy test
@@ -157,8 +157,8 @@ jobs:
     with:
       os: ${{ matrix.os }}
       python-version: ${{ matrix.python-version }}
-      package_to_test: some-org/package-b
-      package_to_test_ref: ${{ matrix.package-b-version }}
+      dependency: some-org/package-b
+      dependency-ref: ${{ matrix.package-b-version }}
       package-extras: "test"  # package B's test extras
     strategy:
       matrix:

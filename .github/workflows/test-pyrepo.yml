@@ -1,3 +1,4 @@
+# Reusable python test workflow
 name: Test
 
 on:
@@ -27,7 +28,7 @@ on:
         required: false
         type: boolean
         default: false
-        description: "Whether to install pre-releases in the pip install phase with `--pre`"
+        description: "Whether to install pre-releases in the pip install phase with `--pre`."
         # example >>> pip-install-pre-release: github.event_name == 'schedule'
       pip-pre-installs:
         required: false

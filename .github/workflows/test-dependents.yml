@@ -1,37 +1,38 @@
-# workflow to test packages that depend on your package
-# use `package-to-test-ref` to specify the dependent package repo
+# workflow to test that changes haven't broken packages that depend on this one.
 name: Test dependents
 
 on:
   workflow_call:
     inputs:
-      package-to-test:
+      dependency-repo:
         required: true
         type: string
         description: Repository name with owner of package to test (org/repo).
-      package-to-test-ref:
+      dependency-ref:
         required: false
         type: string
         default: ""
-        description: Ref to checkout in package to test. Defaults to default branch.
+        description: Ref to checkout in dependency-repo. Defaults to HEAD in default branch.
       python-version:
         required: false
         type: string
         default: "3.x"
+        description: "Python version to use. Passed to `actions/setup-python`."
       os:
         required: false
         type: string
         default: ubuntu-latest
+        description: "Operating system to use. Passed to `runs-on:`."
       host-extras:
         required: false
         type: string
         default: ""
-        description: Extras to install for host repo.
-      package-extras:
+        description: Extras to use when installing host (package running this workflow).
+      dependency-extras:
         required: false
         type: string
         default: ""
-        description: Extras to install for package to test.
+        description: Extras to use when installing dependency-repo.
       qt:
         required: false
         type: string
@@ -41,12 +42,12 @@ on:
         required: false
         type: string
         default: ""
-        description: Command to run after installing dependencies.
+        description: Command(s) to run after installing dependencies.
       pytest-args:
         required: false
         type: string
         default: ""
-        description: Arguments to pass to pytest.
+        description: "Additional arguments to pass to pytest. Can be used to specify paths or for for `-k`, `-x`, etc."
 
 jobs:
   test:
@@ -59,12 +60,12 @@ jobs:
           path: ${{ github.repository }}
           fetch-depth: 0
 
-      - name: Checkout ${{ inputs.package-to-test }} ${{ inputs.package-to-test-ref }}
+      - name: Checkout ${{ inputs.dependency-repo }} ${{ inputs.dependency-ref }}
         uses: actions/checkout@v4
         with:
-          path: ${{ inputs.package-to-test }}
-          repository: ${{ inputs.package-to-test }}
-          ref: ${{ inputs.package-to-test-ref }}
+          path: ${{ inputs.dependency-repo }}
+          repository: ${{ inputs.dependency-repo }}
+          ref: ${{ inputs.dependency-ref }}
           fetch-depth: 0
 
       - name: Set up Python ${{ inputs.python-version }}
@@ -79,7 +80,7 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install -U pip
-          python -m pip install ./${{ inputs.package-to-test }}${{ inputs.package-extras != '' && format('[{0}]', inputs.package-extras) || '' }}
+          python -m pip install ./${{ inputs.dependency-repo }}${{ inputs.dependency-extras != '' && format('[{0}]', inputs.dependency-extras) || '' }}
           echo "##############################################################"
           echo "##############################################################"
           python -m pip install ./${{ github.repository }}${{ inputs.host-extras != '' && format('[{0}]', inputs.host-extras) || '' }}
@@ -95,11 +96,11 @@ jobs:
       - name: Run tests
         if: ${{ inputs.qt == '' }}
         run: python -m pytest --color=yes -W default ${{ inputs.pytest-args }}
-        working-directory: ${{ inputs.package-to-test }}
+        working-directory: ${{ inputs.dependency-repo }}
 
       - name: Run (headless) tests
         if: ${{ inputs.qt != '' }}
         uses: aganders3/headless-gui@v1
         with:
-          working-directory: ${{ inputs.package-to-test }}
+          working-directory: ${{ inputs.dependency-repo }}
           run: python -m pytest --color=yes -W default ${{ inputs.pytest-args }}
