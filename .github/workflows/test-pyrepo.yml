@@ -180,3 +180,5 @@ jobs:
         with:
           fail_ci_if_error: ${{ inputs.fail-on-coverage-error }}
           verbose: true
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
