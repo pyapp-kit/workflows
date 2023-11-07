@@ -182,7 +182,9 @@ jobs:
 
       # if CODECOV_TOKEN is available, v4 is a more robust action
       # https://community.codecov.com/t/upload-issues-unable-to-locate-build-via-github-actions-api/3954
+      # HOWEVER: this won't work for any PR from a fork... making it essentially useless for now.
       # https://github.com/codecov/feedback/issues/112
+      # (It will always fall back to v3)
       - name: codecov v4
         if: inputs.pytest-cov-flags != '' && env.HAS_CODECOV_TOKEN == 'true'
         uses: codecov/codecov-action@v4-beta
