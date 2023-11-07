@@ -94,7 +94,7 @@ jobs:
       HATCH_BUILD_HOOKS_ENABLE: ${{ inputs.hatch-build-hooks-enable }}
       CODECOV_TOKEN: ${{ secrets.codecov-token || secrets.CODECOV_TOKEN }}
     steps:
-      - name: Checkout repository
+      - name: Checkout ${{ github.repository }}
         uses: actions/checkout@v4
         with:
           fetch-depth: ${{ inputs.fetch-depth }}
@@ -110,11 +110,11 @@ jobs:
         if: ${{ inputs.qt != '' }}
         uses: tlambert03/setup-qt-libs@v1
 
-      - name: Pip pre-install
+      - name: Pip pre-install ${{ inputs.pip-pre-installs }}
         if: ${{ inputs.pip-pre-installs != '' }}
         run: python -m pip install ${{ inputs.pip-pre-installs }}
 
-      - name: Install dependencies
+      - name: Install dependencies ${{ inputs.pip-install-pre-release && '--pre' || ''}}
         run: |
           python -m pip install --upgrade pip
           python -m pip install ${{ inputs.pip-install-flags }} .[${{ inputs.extras }}]
@@ -123,11 +123,11 @@ jobs:
           #   pip-install-pre-release: github.event_name == 'schedule'
           PIP_PRE: ${{ inputs.pip-install-pre-release }}
 
-      - name: Install Qt (${{ inputs.qt }})
+      - name: Install Qt ${{ inputs.qt }}
         if: ${{ inputs.qt != '' }}
         run: python -m pip install ${{ inputs.qt }}
 
-      - name: Pip post-install
+      - name: Pip post-install ${{ inputs.pip-post-installs }}
         if: ${{ inputs.pip-post-installs != '' }}
         run: python -m pip install ${{ inputs.pip-post-installs }} --force-reinstall
 
@@ -135,7 +135,7 @@ jobs:
         if: ${{ inputs.qt == '' }}
         run: python -m pytest --color=yes ${{ inputs.pytest-cov-flags }} ${{ inputs.pytest-args }}
 
-      - name: Run (headless) tests
+      - name: Run tests (headless)
         if: ${{ inputs.qt != '' }}
         uses: aganders3/headless-gui@v1
         with:
@@ -178,10 +178,10 @@ jobs:
               });
               console.log('A new issue was created to report a failing test.');
             }
-      
+
       # if CODECOV_TOKEN is available, v4 is a more robust action
       # https://community.codecov.com/t/upload-issues-unable-to-locate-build-via-github-actions-api/3954
-      - name: Coverage v4
+      - name: codecov v4
         if: ${{ inputs.pytest-cov-flags != '' }} && env.CODECOV_TOKEN != ''
         id: coverage_v4
         uses: codecov/codecov-action@v4-beta
@@ -189,7 +189,7 @@ jobs:
           fail_ci_if_error: ${{ inputs.fail-on-coverage-error }}
           verbose: true
 
-      - name: Coverage v3
+      - name: codecov v3
         if: ${{ inputs.pytest-cov-flags != '' }} && steps.coverage_v4.outcome != 'success'
         uses: codecov/codecov-action@v3
         with:
