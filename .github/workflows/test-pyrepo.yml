@@ -176,7 +176,7 @@ jobs:
 
       - name: Coverage
         if: ${{ inputs.pytest-cov-flags != '' }}
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v4-beta
         with:
           fail_ci_if_error: ${{ inputs.fail-on-coverage-error }}
           verbose: true
