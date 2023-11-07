@@ -84,7 +84,7 @@ on:
     secrets:
       codecov-token:
         required: false
-        description: "Token for codecov action v4. Only required if `pytest-cov-flags` is not empty."
+        description: "Token for opting into codecov-action@v4-beta. Only used if `pytest-cov-flags` is not empty."
 
 jobs:
   test:
@@ -182,16 +182,16 @@ jobs:
 
       # if CODECOV_TOKEN is available, v4 is a more robust action
       # https://community.codecov.com/t/upload-issues-unable-to-locate-build-via-github-actions-api/3954
+      # https://github.com/codecov/feedback/issues/112
       - name: codecov v4
         if: inputs.pytest-cov-flags != '' && env.HAS_CODECOV_TOKEN == 'true'
-        id: coverage_v4
         uses: codecov/codecov-action@v4-beta
         with:
           fail_ci_if_error: ${{ inputs.fail-on-coverage-error }}
           verbose: true
 
       - name: codecov v3
-        if: ${{ inputs.pytest-cov-flags != '' }} && steps.coverage_v4.outcome != 'success'
+        if: inputs.pytest-cov-flags != '' && env.HAS_CODECOV_TOKEN != 'true'
         uses: codecov/codecov-action@v3
         with:
           fail_ci_if_error: ${{ inputs.fail-on-coverage-error }}
