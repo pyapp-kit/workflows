@@ -81,10 +81,6 @@ on:
         default: false
         description: "Whether to create a GitHub issue when a test fails. Good for cron jobs."
         # example >>> report-failures: github.event_name == 'schedule'
-    secrets:
-      CODECOV_TOKEN:
-        required: false
-        description: "Token for codecov-action v4. Only required if `pytest-cov-flags` is not empty."
 
 jobs:
   test:
