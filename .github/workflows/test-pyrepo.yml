@@ -178,9 +178,11 @@ jobs:
               });
               console.log('A new issue was created to report a failing test.');
             }
-
+      
+      # if CODECOV_TOKEN is available, v4 is a more robust action
+      # https://community.codecov.com/t/upload-issues-unable-to-locate-build-via-github-actions-api/3954
       - name: Coverage v4
-        if: ${{ inputs.pytest-cov-flags != '' }} && env.CODECOV_TOKEN != null
+        if: ${{ inputs.pytest-cov-flags != '' }} && env.CODECOV_TOKEN != ''
         id: coverage_v4
         uses: codecov/codecov-action@v4-beta
         with:
