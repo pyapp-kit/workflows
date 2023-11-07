@@ -92,6 +92,7 @@ jobs:
     runs-on: ${{ inputs.os }}
     env:
       HATCH_BUILD_HOOKS_ENABLE: ${{ inputs.hatch-build-hooks-enable }}
+      CODECOV_TOKEN: ${{ secrets.codecov-token || secrets.CODECOV_TOKEN }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -178,11 +179,17 @@ jobs:
               console.log('A new issue was created to report a failing test.');
             }
 
-      - name: Coverage
-        if: ${{ inputs.pytest-cov-flags != '' }}
+      - name: Coverage v4
+        if: ${{ inputs.pytest-cov-flags != '' }} && env.CODECOV_TOKEN != null
+        id: coverage_v4
         uses: codecov/codecov-action@v4-beta
         with:
           fail_ci_if_error: ${{ inputs.fail-on-coverage-error }}
           verbose: true
-        env:
-          CODECOV_TOKEN: ${{ secrets.codecov-token || secrets.CODECOV_TOKEN }}
+
+      - name: Coverage v3
+        if: ${{ inputs.pytest-cov-flags != '' }} && steps.coverage_v4.outcome != 'success'
+        uses: codecov/codecov-action@v3
+        with:
+          fail_ci_if_error: ${{ inputs.fail-on-coverage-error }}
+          verbose: true
