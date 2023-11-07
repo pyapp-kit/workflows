@@ -182,7 +182,7 @@ jobs:
       # if CODECOV_TOKEN is available, v4 is a more robust action
       # https://community.codecov.com/t/upload-issues-unable-to-locate-build-via-github-actions-api/3954
       - name: codecov v4
-        if: ${{ inputs.pytest-cov-flags != '' }} && env.CODECOV_TOKEN != ''
+        if: ${{ inputs.pytest-cov-flags != '' }} && env.CODECOV_TOKEN
         id: coverage_v4
         uses: codecov/codecov-action@v4-beta
         with:
