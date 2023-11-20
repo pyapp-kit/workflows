@@ -145,7 +145,7 @@ jobs:
       - name: Report failure
         # common usage might be: report-failures: github.event_name == 'schedule'
         if: ${{ failure() && inputs.report-failures }}
-        uses: actions/github-script@v6
+        uses: actions/github-script@v7
         env:
           ACTION_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
           WORKFLOW_NAME: ${{ github.workflow }}
