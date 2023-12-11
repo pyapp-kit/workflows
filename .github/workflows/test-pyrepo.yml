@@ -138,7 +138,7 @@ jobs:
 
       - name: Run tests (headless)
         if: ${{ inputs.qt != '' }}
-        uses: aganders3/headless-gui@v1
+        uses: aganders3/headless-gui@v2
         with:
           run: python -m pytest --color=yes ${{ inputs.pytest-cov-flags }} ${{ inputs.pytest-args }}
 
