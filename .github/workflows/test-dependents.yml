@@ -100,7 +100,7 @@ jobs:
 
       - name: Run (headless) tests
         if: ${{ inputs.qt != '' }}
-        uses: aganders3/headless-gui@v1
+        uses: aganders3/headless-gui@v2
         with:
           working-directory: ${{ inputs.dependency-repo }}
           run: python -m pytest --color=yes -W default ${{ inputs.pytest-args }}
