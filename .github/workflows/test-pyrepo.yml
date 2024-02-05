@@ -187,14 +187,14 @@ jobs:
       # (It will always fall back to v3)
       - name: codecov v4
         if: inputs.pytest-cov-flags != '' && env.HAS_CODECOV_TOKEN == 'true'
-        uses: codecov/codecov-action@v4-beta
+        uses: codecov/codecov-action@v4
         with:
           fail_ci_if_error: ${{ inputs.fail-on-coverage-error }}
           verbose: true
 
       - name: codecov v3
         if: inputs.pytest-cov-flags != '' && env.HAS_CODECOV_TOKEN != 'true'
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v4
         with:
           fail_ci_if_error: ${{ inputs.fail-on-coverage-error }}
           verbose: true
