@@ -30,6 +30,11 @@ on:
         default: false
         description: "Whether to install pre-releases in the pip install phase with `--pre`."
         # example >>> pip-install-pre-release: github.event_name == 'schedule'
+      pip-install-min-reqs:
+        required: false
+        type: boolean
+        default: false
+        description: "Whether to install the minimum declared dependency versions."
       pip-pre-installs:
         required: false
         type: string
@@ -107,6 +112,8 @@ jobs:
           cache-dependency-path: ${{ inputs.python-cache-dependency-path }}
           cache: "pip"
 
+      - run: python -m pip install --upgrade pip
+
       - name: Setup Qt Libraries
         if: ${{ inputs.qt != '' }}
         uses: tlambert03/setup-qt-libs@v1
@@ -115,10 +122,16 @@ jobs:
         if: ${{ inputs.pip-pre-installs != '' }}
         run: python -m pip install ${{ inputs.pip-pre-installs }}
 
-      - name: Install dependencies ${{ inputs.pip-install-pre-release && '--pre' || ''}}
+      - name: Install minimum requirements
+        if: ${{ inputs.pip-install-min-reqs }}
         run: |
-          python -m pip install --upgrade pip
-          python -m pip install ${{ inputs.pip-install-flags }} .[${{ inputs.extras }}]
+          python -m pip install git+https://github.com/tlambert03/hatch-min-requirements.git
+          python -c "from hatch_min_requirements import patch_pyproject; patch_pyproject('pyproject.toml', 'min-reqs');"
+          python -m pip install ${{ inputs.pip-install-flags }} .[min-reqs,${{ inputs.extras }}]
+
+      - name: Install dependencies ${{ inputs.pip-install-pre-release && '--pre' || ''}}
+        if: ${{ !inputs.pip-install-min-reqs }}
+        run: python -m pip install ${{ inputs.pip-install-flags }} .[${{ inputs.extras }}]
         env:
           # common usage might be:
           #   pip-install-pre-release: github.event_name == 'schedule'
