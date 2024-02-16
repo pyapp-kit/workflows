@@ -34,7 +34,7 @@ on:
         required: false
         type: boolean
         default: false
-        description: "Whether to install the minimum declared dependency versions."
+        description: "Whether to install the *minimum* declared dependency versions."
       pip-pre-installs:
         required: false
         type: string
