@@ -86,6 +86,21 @@ on:
         default: false
         description: "Whether to create a GitHub issue when a test fails. Good for cron jobs."
         # example >>> report-failures: github.event_name == 'schedule'
+      cache-key:
+        required: false
+        type: string
+        default: ""
+        description: "Cache key to use for caching. If not set, no caching will be used."
+      cache-path:
+        required: false
+        type: string
+        default: ""
+        description: "Path to cache. If not set, no caching will be used."
+      cache-script:
+        required: false
+        type: string
+        default: ""
+        description: "Script to run to create the cache. If not set, no caching will be used."
     secrets:
       codecov-token:
         required: false
@@ -100,6 +115,7 @@ jobs:
       CODECOV_TOKEN: ${{ secrets.codecov-token || secrets.CODECOV_TOKEN }}
       HAS_CODECOV_TOKEN: ${{ (secrets.codecov_token || secrets.CODECOV_TOKEN) && 'true' || 'false' }}
       MIN_REQS_TEST: ${{ inputs.pip-install-min-reqs }}
+      USE_CACHE: ${{ inputs.cache-key != '' && inputs.cache-path != '' && 'true' || 'false' }}
     steps:
       - name: Checkout ${{ github.repository }}
         uses: actions/checkout@v4
@@ -118,6 +134,17 @@ jobs:
       - name: Setup Qt Libraries
         if: ${{ inputs.qt != '' }}
         uses: tlambert03/setup-qt-libs@v1
+
+      - uses: actions/cache@v4
+        if: ${{ inputs.cache-key != '' && inputs.cache-path != '' }}
+        id: cache
+        with:
+          path: ${{ inputs.cache-path }}
+          key: ${{ inputs.cache-key }}
+
+      - name: populate cache
+        if: ${{ inputs.cache-key != '' && inputs.cache-path != '' && inputs.cache-script != '' }} && steps.cache.outputs.cache-hit != 'true'
+        run: ${{ inputs.cache-script }}
 
       - name: Pip pre-install ${{ inputs.pip-pre-installs }}
         if: ${{ inputs.pip-pre-installs != '' }}
