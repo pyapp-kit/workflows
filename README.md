@@ -176,7 +176,7 @@ jobs:
       python-version: ${{ matrix.python-version }}
       dependency-repo: some-org/package-b
       dependency-ref: ${{ matrix.package-b-version }}
-      package-extras: "test"  # package B's test extras
+      dependency-extras: "test"  # Extras to use when installing dependency-repo.
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest]
