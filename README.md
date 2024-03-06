@@ -47,6 +47,9 @@ Standard workflow to setup python and test a python package, in the following or
 | fail-on-coverage-error | boolean | True | Fail the build if codecov action fails. |
 | hatch-build-hooks-enable | boolean | False | Value for [`HATCH_BUILD_HOOKS_ENABLE`](https://hatch.pypa.io/latest/config/build/#environment-variables). |
 | report-failures | boolean | False | Whether to create a GitHub issue when a test fails. Good for cron jobs. |
+| cache-key | string | '' | Cache key to use for caching. If not set, no caching will be used. |
+| cache-path | string | '' | Path to cache. If not set, no caching will be used. |
+| cache-script | string | '' | Script to run to create the cache. If not set, no caching will be used. |
 <!-- /pyrepo-table -->
 
 See complete up-to-date list of options in [`test-pyrepo.yml`](.github/workflows/test-pyrepo.yml#L5)
@@ -152,7 +155,7 @@ would like to ensure that your changes don't break those packages.
 | python-version | string | '3.x' | Python version to use. Passed to `actions/setup-python`. |
 | os | string | 'ubuntu-latest' | Operating system to use. Passed to `runs-on:`. |
 | host-extras | string | '' | Extras to use when installing host (package running this workflow). |
-| dependency-extras | string | '' | Extras to use when installing dependency-repo. |
+| dependency-extras | string | 'test' | Extras to use when installing dependency-repo. |
 | qt | string | '' | Version of Qt to install. |
 | post-install-cmd | string | '' | Command(s) to run after installing dependencies. |
 | pytest-args | string | '' | Additional arguments to pass to pytest. Can be used to specify paths or for for `-k`, `-x`, etc. |

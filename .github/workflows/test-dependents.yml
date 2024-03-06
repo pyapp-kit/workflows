@@ -31,7 +31,7 @@ on:
       dependency-extras:
         required: false
         type: string
-        default: ""
+        default: "test"
         description: Extras to use when installing dependency-repo.
       qt:
         required: false
