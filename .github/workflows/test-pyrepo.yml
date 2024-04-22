@@ -112,11 +112,18 @@ jobs:
     runs-on: ${{ inputs.os }}
     env:
       HATCH_BUILD_HOOKS_ENABLE: ${{ inputs.hatch-build-hooks-enable }}
-      CODECOV_TOKEN: ${{ secrets.codecov-token || secrets.CODECOV_TOKEN }}
-      HAS_CODECOV_TOKEN: ${{ (secrets.codecov_token || secrets.CODECOV_TOKEN) && 'true' || 'false' }}
       MIN_REQS_TEST: ${{ inputs.pip-install-min-reqs }}
       USE_CACHE: ${{ inputs.cache-key != '' && inputs.cache-path != '' && 'true' || 'false' }}
     steps:
+      - name: Set CODECOV_TOKEN
+        shell: bash
+        run: |
+          if [ -n "${{ secrets.codecov-token }}" ]; then
+            echo "CODECOV_TOKEN=${{ secrets.codecov-token }}" >> $GITHUB_ENV
+          else
+            echo "CODECOV_TOKEN=${{ secrets.CODECOV_TOKEN }}" >> $GITHUB_ENV
+          fi
+
       - name: Checkout ${{ github.repository }}
         uses: actions/checkout@v4
         with:
@@ -227,14 +234,14 @@ jobs:
       # https://github.com/codecov/feedback/issues/112
       # (It will always fall back to v3)
       - name: codecov v4
-        if: inputs.pytest-cov-flags != '' && env.HAS_CODECOV_TOKEN == 'true'
+        if: inputs.pytest-cov-flags != '' && env.CODECOV_TOKEN != ''
         uses: codecov/codecov-action@v4
         with:
           fail_ci_if_error: ${{ inputs.fail-on-coverage-error }}
           verbose: true
 
       - name: codecov v3
-        if: inputs.pytest-cov-flags != '' && env.HAS_CODECOV_TOKEN != 'true'
+        if: inputs.pytest-cov-flags != '' && env.CODECOV_TOKEN == ''
         uses: codecov/codecov-action@v3
         with:
           fail_ci_if_error: ${{ inputs.fail-on-coverage-error }}
