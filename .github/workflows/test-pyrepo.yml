@@ -246,10 +246,6 @@ jobs:
               console.log('A new issue was created to report a failing test.');
             }
 
-      - name: ls directory
-        shell: bash
-        run: ls -la
-
       - name: codecov v4
         if: inputs.pytest-cov-flags != '' && inputs.coverage-upload == 'codecov'
         uses: codecov/codecov-action@v4
