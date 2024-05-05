@@ -52,7 +52,14 @@ jobs:
 
       - name: Combine coverage data
         run: |
-          python -Im coverage combine covreports
+          REPO_NAME="${GITHUB_REPOSITORY##*/}"
+          echo "[paths]" > ci_coveragerc
+          echo "source =" >> ci_coveragerc
+          echo "    src/" >> ci_coveragerc
+          echo "    ." >> ci_coveragerc
+          echo "    src/$REPO_NAME" >> ci_coveragerc
+          echo "    */$REPO_NAME" >> ci_coveragerc
+          python -Im coverage combine covreports --rcfile=ci_coveragerc
           python -Im coverage xml -o coverage.xml
           python -Im coverage report
           python -Im coverage report --format=markdown >> $GITHUB_STEP_SUMMARY
