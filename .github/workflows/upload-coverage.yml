@@ -59,6 +59,7 @@ jobs:
           echo "    ." >> ci_coveragerc
           echo "    src/$REPO_NAME" >> ci_coveragerc
           echo "    */$REPO_NAME" >> ci_coveragerc
+          cat ci_coveragerc
           python -Im coverage combine covreports --rcfile=ci_coveragerc
           python -Im coverage xml -o coverage.xml
           python -Im coverage report
