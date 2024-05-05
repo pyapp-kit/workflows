@@ -245,5 +245,5 @@ jobs:
         uses: actions/upload-artifact@v4
         if: inputs.pytest-cov-flags != '' && inputs.coverage-upload == 'artifact'
         with:
-          name: covreport-${{ inputs.os }}-py${{ inputs.python-version }}-${{ inputs.qt }}
+          name: covreport-${{ inputs.os }}-py${{ inputs.python-version }}-${{ github.run_id }}
           path: ./.coverage*
