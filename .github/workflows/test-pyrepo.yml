@@ -155,7 +155,7 @@ jobs:
           key: ${{ inputs.cache-key }}
 
       - name: populate cache
-        if: ${{ inputs.cache-key != '' && inputs.cache-path != '' && inputs.cache-script != '' }} && steps.cache.outputs.cache-hit != 'true'
+        if: inputs.cache-key != '' && inputs.cache-path != '' && inputs.cache-script != '' && steps.cache.outputs.cache-hit != 'true'
         run: ${{ inputs.cache-script }}
 
       - name: Pip pre-install ${{ inputs.pip-pre-installs }}
