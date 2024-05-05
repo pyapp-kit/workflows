@@ -120,11 +120,12 @@ jobs:
       MIN_REQS_TEST: ${{ inputs.pip-install-min-reqs }}
       USE_CACHE: ${{ inputs.cache-key != '' && inputs.cache-path != '' && 'true' || 'false' }}
     steps:
-      - name: Set random COVERAGE_FILE
+      - name: Generate UUID
+        run: echo "UUID=$(uuidgen)" >> $GITHUB_ENV
         shell: bash
-        run: |
-          echo "UUID=$(uuidgen)" >> $GITHUB_ENV
-          echo "COVERAGE_FILE=.coverage.$UUID" >> $GITHUB_ENV
+      - name: Set COVERAGE_FILE
+        run: echo "COVERAGE_FILE=.coverage.$UUID" >> $GITHUB_ENV
+        shell: bash
 
       - name: Set CODECOV_TOKEN
         shell: bash
@@ -238,7 +239,7 @@ jobs:
               });
               console.log('A new issue was created to report a failing test.');
             }
-      
+
       - name: ls directory
         shell: bash
         run: ls -la
