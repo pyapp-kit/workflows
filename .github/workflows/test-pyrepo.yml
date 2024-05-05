@@ -101,10 +101,15 @@ on:
         type: string
         default: ""
         description: "Script to run to create the cache. If not set, no caching will be used."
+      coverage-upload:
+        required: false
+        type: string
+        default: "codecov"
+        description: "Where to upload coverage data. Options: `'artifact'`, `'codecov'`. If using 'artifact', coverage must be sent to codecov in a separate workflow. (*see upload-coverage.yml*)"
     secrets:
       codecov-token:
         required: false
-        description: "Token for opting into codecov-action@v4-beta. Only used if `pytest-cov-flags` is not empty."
+        description: "Token for codecov-action. Only used if `pytest-cov-flags` is not empty and coverage-upload is 'codecov'."
 
 jobs:
   test:
@@ -150,7 +155,7 @@ jobs:
           key: ${{ inputs.cache-key }}
 
       - name: populate cache
-        if: ${{ inputs.cache-key != '' && inputs.cache-path != '' && inputs.cache-script != '' }} && steps.cache.outputs.cache-hit != 'true'
+        if: inputs.cache-key != '' && inputs.cache-path != '' && inputs.cache-script != '' && steps.cache.outputs.cache-hit != 'true'
         run: ${{ inputs.cache-script }}
 
       - name: Pip pre-install ${{ inputs.pip-pre-installs }}
@@ -229,10 +234,16 @@ jobs:
             }
 
       - name: codecov v4
-        if: inputs.pytest-cov-flags != ''
+        if: inputs.pytest-cov-flags != '' && inputs.coverage-upload == 'codecov'
         uses: codecov/codecov-action@v4
         with:
           fail_ci_if_error: ${{ inputs.fail-on-coverage-error }}
           verbose: true
           token: ${{ env.CODECOV_TOKEN }}
 
+      - name: Upload coverage data
+        uses: actions/upload-artifact@v4
+        if: inputs.pytest-cov-flags != '' && inputs.coverage-upload == 'artifact'
+        with:
+          name: covreport-${{ inputs.os }}-py${{ inputs.python-version }}-${{ inputs.qt }}
+          path: ./.coverage.*

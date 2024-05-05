@@ -31,25 +31,32 @@ Standard workflow to setup python and test a python package, in the following or
 <!-- pyrepo-table -->
 | Input | Type | Default | Description |
 | --- | --- | --- | --- |
-| python-version | string | '3.x' | Python version to use. Passed to `actions/setup-python`. |
-| os | string | 'ubuntu-latest' | Operating system to use. Passed to `runs-on:`. |
-| extras | string | 'test' | Package extras to install (may use commas for multiples `'test,docs'`). If you don't have an extra named 'test' you should change this. |
-| pip-install-flags | string | '' | Additional flags to pass to pip install. Can be used for `--editable`, `--no-deps`, etc. |
+| python-version | string | 3.x | Python version to use. Passed to `actions/setup-python`. |
+| os | string | ubuntu-latest | Operating system to use. Passed to `runs-on:`. |
+| extras | string | test | Package extras to install (may use commas for multiples `'test,docs'`). If you don't have an extra named 'test' you should change this. |
+| pip-install-flags | string |  | Additional flags to pass to pip install. Can be used for `--editable`, `--no-deps`, etc. |
 | pip-install-pre-release | boolean | False | Whether to install pre-releases in the pip install phase with `--pre`. |
 | pip-install-min-reqs | boolean | False | Whether to install the *minimum* declared dependency versions. |
-| pip-pre-installs | string | '' | Packages to install *before* calling `pip install .` |
-| pip-post-installs | string | '' | Packages to install *after* `pip install .`. (these are called with `--force-reinstall`.) |
-| qt | string | '' | Version of qt to install (or none if blank).  Will also install qt-libs and run tests headlessly if not blank. |
+| pip-pre-installs | string |  | Packages to install *before* calling `pip install .` |
+| pip-post-installs | string |  | Packages to install *after* `pip install .`. (these are called with `--force-reinstall`.) |
+| qt | string |  | Version of qt to install (or none if blank).  Will also install qt-libs and run tests headlessly if not blank. |
 | fetch-depth | number | 1 | The number of commits to fetch. 0 indicates all history for all branches and tags. |
-| python-cache-dependency-path | string | 'pyproject.toml' | passed to `actions/setup-python` |
-| pytest-args | string | '' | Additional arguments to pass to pytest. Can be used to specify paths or for for `-k`, `-x`, etc. |
-| pytest-cov-flags | string | '--cov --cov-report=xml --cov-report=term-missing' | Flags to pass to pytest-cov. Can be used for `--cov-fail-under`, `--cov-branch`, etc. Note: it's best to specify `[tool.coverage.run] source = ['your_package']`. |
+| python-cache-dependency-path | string | pyproject.toml | passed to `actions/setup-python` |
+| pytest-args | string |  | Additional arguments to pass to pytest. Can be used to specify paths or for for `-k`, `-x`, etc. |
+| pytest-cov-flags | string | --cov --cov-report=xml --cov-report=term-missing | Flags to pass to pytest-cov. Can be used for `--cov-fail-under`, `--cov-branch`, etc. Note: it's best to specify `[tool.coverage.run] source = ['your_package']`. |
 | fail-on-coverage-error | boolean | True | Fail the build if codecov action fails. |
 | hatch-build-hooks-enable | boolean | False | Value for [`HATCH_BUILD_HOOKS_ENABLE`](https://hatch.pypa.io/latest/config/build/#environment-variables). |
 | report-failures | boolean | False | Whether to create a GitHub issue when a test fails. Good for cron jobs. |
-| cache-key | string | '' | Cache key to use for caching. If not set, no caching will be used. |
-| cache-path | string | '' | Path to cache. If not set, no caching will be used. |
-| cache-script | string | '' | Script to run to create the cache. If not set, no caching will be used. |
+| cache-key | string |  | Cache key to use for caching. If not set, no caching will be used. |
+| cache-path | string |  | Path to cache. If not set, no caching will be used. |
+| cache-script | string |  | Script to run to create the cache. If not set, no caching will be used. |
+| coverage-upload | string | codecov | Where to upload coverage data. Options: `'artifact'`, `'codecov'`. If using 'artifact', coverage must be sent to codecov in a separate workflow. (*see upload-coverage.yml*) |
+
+**Secrets:**
+
+| Input | Description |
+| --- | --- |
+| codecov-token | Token for codecov-action. Only used if `pytest-cov-flags` is not empty and coverage-upload is 'codecov'. |
 <!-- /pyrepo-table -->
 
 See complete up-to-date list of options in [`test-pyrepo.yml`](.github/workflows/test-pyrepo.yml#L5)
@@ -66,7 +73,7 @@ name: CI
 
 jobs:
   run_tests:
-    uses: pyapp-kit/workflows/.github/workflows/test-pyrepo.yml@main
+    uses: pyapp-kit/workflows/.github/workflows/test-pyrepo.yml@v1
     with:
       os: ${{ matrix.os }}
       python-version: ${{ matrix.python-version }}
@@ -89,7 +96,7 @@ on:
 
 jobs:
   run_tests:
-    uses: pyapp-kit/workflows/.github/workflows/test-pyrepo.yml@main
+    uses: pyapp-kit/workflows/.github/workflows/test-pyrepo.yml@v1
     with:
       os: ${{ matrix.os }}
       python-version: ${{ matrix.python-version }}
@@ -116,7 +123,7 @@ name: CI
 
 jobs:
   run_tests:
-    uses: pyapp-kit/workflows/.github/workflows/test-pyrepo.yml@main
+    uses: pyapp-kit/workflows/.github/workflows/test-pyrepo.yml@v1
     with:
       os: ${{ matrix.os }}
       python-version: ${{ matrix.python-version }}
@@ -126,6 +133,40 @@ jobs:
         os: [ubuntu-latest, macos-latest, windows-latest]
         python-version: ["3.10", "3.11", "3.12"]
         qt: ["", "PyQt6", "PySide6"]
+```
+
+#### Separate codecov reporting into a separate job
+
+Because codecov can often fail, you might want to combine all
+reports and upload in a single step.  For this, change the
+`coverage-upload` input to `artifact` and add a separate job
+to upload the coverage report using [`upload-coverage.yml`](#combine-and-upload-coverage-artifacts).
+
+```yaml
+name: CI
+
+jobs:
+  tests:
+    uses: pyapp-kit/workflows/.github/workflows/test-pyrepo.yml@v1
+    with:
+      os: ${{ matrix.os }}
+      python-version: ${{ matrix.python-version }}
+      # changing this to "artifact" prevents uploading to codecov here,
+      # instead it creates and uploads an artifact with the coverage data
+      coverage-upload: artifact
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        python-version: ["3.10", "3.11", "3.12"]
+
+  # now add an additional job that needs the previous job
+  # which uses the 'upload-coverage.yml' workflow
+  upload_coverage:
+    needs: [tests]
+    uses: pyapp-kit/workflows/.github/workflows/upload-coverage.yml@v1
+    secrets:
+      codecov-token: ${{ secrets.CODECOV_TOKEN }}
 ```
 
 ## Test Dependent Packages
@@ -150,15 +191,15 @@ would like to ensure that your changes don't break those packages.
 <!-- deps-table -->
 | Input | Type | Default | Description |
 | --- | --- | --- | --- |
-| dependency-repo | string | '' | Repository name with owner of package to test (org/repo). |
-| dependency-ref | string | '' | Ref to checkout in dependency-repo. Defaults to HEAD in default branch. |
-| python-version | string | '3.x' | Python version to use. Passed to `actions/setup-python`. |
-| os | string | 'ubuntu-latest' | Operating system to use. Passed to `runs-on:`. |
-| host-extras | string | '' | Extras to use when installing host (package running this workflow). |
-| dependency-extras | string | 'test' | Extras to use when installing dependency-repo. |
-| qt | string | '' | Version of Qt to install. |
-| post-install-cmd | string | '' | Command(s) to run after installing dependencies. |
-| pytest-args | string | '' | Additional arguments to pass to pytest. Can be used to specify paths or for for `-k`, `-x`, etc. |
+| dependency-repo | string |  | Repository name with owner of package to test (org/repo). |
+| dependency-ref | string |  | Ref to checkout in dependency-repo. Defaults to HEAD in default branch. |
+| python-version | string | 3.x | Python version to use. Passed to `actions/setup-python`. |
+| os | string | ubuntu-latest | Operating system to use. Passed to `runs-on:`. |
+| host-extras | string |  | Extras to use when installing host (package running this workflow). |
+| dependency-extras | string | test | Extras to use when installing dependency-repo. |
+| qt | string |  | Version of Qt to install. |
+| post-install-cmd | string |  | Command(s) to run after installing dependencies. |
+| pytest-args | string |  | Additional arguments to pass to pytest. Can be used to specify paths or for for `-k`, `-x`, etc. |
 <!-- /deps-table -->
 
 ### Example dependecy test
@@ -186,3 +227,23 @@ jobs:
         python-version: ["3.10", "3.12"]
         package-b-version: ["", "v0.5.0"]
 ```
+
+## Combine and Upload Coverage Artifacts
+
+[`uses: pyapp-kit/workflows/.github/workflows/upload-coverage.yml@v1`](.github/workflows/upload-coverage.yml)
+
+This workflow is designed to be used in conjunction with the `test-pyrepo.yml` workflow
+when the `coverage-upload` input is set to `artifact`.
+
+<!-- coverage-table -->
+| Input | Type | Default | Description |
+| --- | --- | --- | --- |
+| fail-on-coverage-error | boolean | True | Fail if codecov action fails. |
+| artifact-pattern | string | covreport-* | glob pattern to the artifacts that should be downloaded for coverage reports. This should match the `name` you used for the `upload-artifact` step in the job that generates the coverage reports. (*This default matches the name in test-pyrepo.yml*) |
+
+**Secrets:**
+
+| Input | Description |
+| --- | --- |
+| codecov-token | Token for codecov-action. |
+<!-- /coverage-table -->
