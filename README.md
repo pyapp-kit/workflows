@@ -11,7 +11,7 @@ as well if you find them useful for your own projects.
 
 ## Run python tests
 
-[`uses: pyapp-kit/workflows/.github/workflows/test-pyrepo.yml@v1`](.github/workflows/test-pyrepo.yml)
+[`uses: pyapp-kit/workflows/.github/workflows/test-pyrepo.yml@v2`](.github/workflows/test-pyrepo.yml)
 
 Standard workflow to setup python and test a python package, in the following order:
 
@@ -39,24 +39,23 @@ Standard workflow to setup python and test a python package, in the following or
 | pip-install-min-reqs | boolean | False | Whether to install the *minimum* declared dependency versions. |
 | pip-pre-installs | string |  | Packages to install *before* calling `pip install .` |
 | pip-post-installs | string |  | Packages to install *after* `pip install .`. (these are called with `--force-reinstall`.) |
-| qt | string |  | Version of qt to install (or none if blank).  Will also install qt-libs and run tests headlessly if not blank. |
+| qt | string |  | Version of qt to install (or none if blank). Will also install qt-libs and run tests headlessly if not blank. |
 | fetch-depth | number | 1 | The number of commits to fetch. 0 indicates all history for all branches and tags. |
 | python-cache-dependency-path | string | pyproject.toml | passed to `actions/setup-python` |
 | pytest-args | string |  | Additional arguments to pass to pytest. Can be used to specify paths or for for `-k`, `-x`, etc. |
-| pytest-cov-flags | string | --cov --cov-report=xml --cov-report=term-missing | Flags to pass to pytest-cov. Can be used for `--cov-fail-under`, `--cov-branch`, etc. Note: it's best to specify `[tool.coverage.run] source = ['your_package']`. |
 | fail-on-coverage-error | boolean | True | Fail the build if codecov action fails. |
 | hatch-build-hooks-enable | boolean | False | Value for [`HATCH_BUILD_HOOKS_ENABLE`](https://hatch.pypa.io/latest/config/build/#environment-variables). |
-| report-failures | boolean | False | Whether to create a GitHub issue when a test fails. Good for cron jobs. |
+| report-failures | string |  | (true or false). Whether to create a GitHub issue when a test fails. If not set, will be true for scheduled runs, and false otherwise. |
 | cache-key | string |  | Cache key to use for caching. If not set, no caching will be used. |
 | cache-path | string |  | Path to cache. If not set, no caching will be used. |
 | cache-script | string |  | Script to run to create the cache. If not set, no caching will be used. |
-| coverage-upload | string | codecov | Where to upload coverage data. Options: `'artifact'`, `'codecov'`. If using 'artifact', coverage must be sent to codecov in a separate workflow. (*see upload-coverage.yml*) |
+| coverage-upload | string | codecov | How to upload coverage data. Options are `'artifact'`, `'codecov'`. If using 'artifact', coverage must be sent to codecov in a separate workflow. (*see upload-coverage.yml*) |
 
 **Secrets:**
 
 | Input | Description |
 | --- | --- |
-| codecov-token | Token for codecov-action. Only used if `pytest-cov-flags` is not empty and coverage-upload is 'codecov'. |
+| codecov_token | Token for codecov-action. Only used if `pytest-cov-flags` is not empty and coverage-upload is 'codecov'. |
 <!-- /pyrepo-table -->
 
 See complete up-to-date list of options in [`test-pyrepo.yml`](.github/workflows/test-pyrepo.yml#L5)
@@ -73,7 +72,7 @@ name: CI
 
 jobs:
   run_tests:
-    uses: pyapp-kit/workflows/.github/workflows/test-pyrepo.yml@v1
+    uses: pyapp-kit/workflows/.github/workflows/test-pyrepo.yml@v2
     with:
       os: ${{ matrix.os }}
       python-version: ${{ matrix.python-version }}
@@ -87,6 +86,11 @@ jobs:
 
 #### Testing depenency pre-releases on a schedule
 
+Note that the default value for `report-failures` is `${{ github.event_name == 'schedule' }}`, so you don't need to specify it unless you want to override the
+default.  However, you may wish to use
+`pip-install-pre-release: ${{ github.event_name == 'schedule' }}`
+to test pre-release versions when triggered by a cron job.
+
 ```yaml
 name: CI
 
@@ -96,14 +100,13 @@ on:
 
 jobs:
   run_tests:
-    uses: pyapp-kit/workflows/.github/workflows/test-pyrepo.yml@v1
+    uses: pyapp-kit/workflows/.github/workflows/test-pyrepo.yml@v2
     with:
       os: ${{ matrix.os }}
       python-version: ${{ matrix.python-version }}
       # Test pre-release versions when triggered by a schedule
       # and open an issue if the tests fail
       pip-install-pre-release: ${{ github.event_name == 'schedule' }}
-      report-failures: ${{ github.event_name == 'schedule' }}
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
@@ -123,7 +126,7 @@ name: CI
 
 jobs:
   run_tests:
-    uses: pyapp-kit/workflows/.github/workflows/test-pyrepo.yml@v1
+    uses: pyapp-kit/workflows/.github/workflows/test-pyrepo.yml@v2
     with:
       os: ${{ matrix.os }}
       python-version: ${{ matrix.python-version }}
@@ -147,12 +150,12 @@ name: CI
 
 jobs:
   tests:
-    uses: pyapp-kit/workflows/.github/workflows/test-pyrepo.yml@v1
+    uses: pyapp-kit/workflows/.github/workflows/test-pyrepo.yml@v2
     with:
       os: ${{ matrix.os }}
       python-version: ${{ matrix.python-version }}
       # changing this to "artifact" prevents uploading to codecov here,
-      # instead it creates and uploads an artifact with the coverage data
+      # instead it uploads an artifact with the coverage data
       coverage-upload: artifact
     strategy:
       fail-fast: false
@@ -160,18 +163,18 @@ jobs:
         os: [ubuntu-latest, macos-latest, windows-latest]
         python-version: ["3.10", "3.11", "3.12"]
 
-  # now add an additional job that needs the previous job
-  # which uses the 'upload-coverage.yml' workflow
+  # now add an additional job to combine and upload the coverage
   upload_coverage:
+    if: always()
     needs: [tests]
-    uses: pyapp-kit/workflows/.github/workflows/upload-coverage.yml@v1
+    uses: pyapp-kit/workflows/.github/workflows/upload-coverage.yml@v2
     secrets:
-      codecov-token: ${{ secrets.CODECOV_TOKEN }}
+      codecov_token: ${{ secrets.CODECOV_TOKEN }}
 ```
 
 ## Test Dependent Packages
 
-[`uses: pyapp-kit/workflows/.github/workflows/test-dependents.yml@v1`](.github/workflows/test-dependents.yml)
+[`uses: pyapp-kit/workflows/.github/workflows/test-dependents.yml@v2`](.github/workflows/test-dependents.yml)
 
 This workflow is useful when your package is a dependency of other packages, and you
 would like to ensure that your changes don't break those packages.
@@ -214,7 +217,7 @@ name: CI
 
 jobs:
   test-package-b:
-    uses: pyapp-kit/workflows/.github/workflows/test-dependents.yml@v1
+    uses: pyapp-kit/workflows/.github/workflows/test-dependents.yml@v2
     with:
       os: ${{ matrix.os }}
       python-version: ${{ matrix.python-version }}
@@ -230,7 +233,7 @@ jobs:
 
 ## Combine and Upload Coverage Artifacts
 
-[`uses: pyapp-kit/workflows/.github/workflows/upload-coverage.yml@v1`](.github/workflows/upload-coverage.yml)
+[`uses: pyapp-kit/workflows/.github/workflows/upload-coverage.yml@v2`](.github/workflows/upload-coverage.yml)
 
 This workflow is designed to be used in conjunction with the `test-pyrepo.yml` workflow
 when the `coverage-upload` input is set to `artifact`.
@@ -245,5 +248,5 @@ when the `coverage-upload` input is set to `artifact`.
 
 | Input | Description |
 | --- | --- |
-| codecov-token | Token for codecov-action. |
+| codecov_token | Token for codecov-action. |
 <!-- /coverage-table -->

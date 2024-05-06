@@ -18,7 +18,7 @@ def _input_table(inputs: dict) -> str:
         default = str(v.get("default", "")).lstrip("'").rstrip("'")
         lines.append(
             f"| {k} | {v.get('type', '')} | "
-            f"{default} | {v.get('description', '')} |"
+            f"{default} | {v.get('description', '').rstrip()} |"
         )
     return "\n".join(lines)
 
@@ -26,7 +26,7 @@ def _input_table(inputs: dict) -> str:
 def _secrets_table(inputs: dict) -> str:
     lines = ["| Input | Description |", "| --- | --- |"]
     for k, v in inputs.items():
-        lines.append(f"| {k} | {v.get('description', '')} |")
+        lines.append(f"| {k} | {v.get('description', '').rstrip()} |")
     return "\n".join(lines)
 
 
