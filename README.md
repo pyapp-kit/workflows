@@ -36,7 +36,7 @@ Standard workflow to setup python and test a python package, in the following or
 | extras | string | test | Package extras to install (may use commas for multiples `'test,docs'`). If you don't have an extra named 'test' you should change this. |
 | pip-install-flags | string |  | Additional flags to pass to pip install. Can be used for `--editable`, `--no-deps`, etc. |
 | pip-install-pre-release | boolean | False | Whether to install pre-releases in the pip install phase with `--pre`. |
-| pip-install-min-reqs | boolean | False | "Whether to install the *minimum* declared dependency versions." |
+| pip-install-min-reqs | boolean | False | Whether to install the *minimum* declared dependency versions. |
 | pip-pre-installs | string |  | Packages to install *before* calling `pip install .` |
 | pip-post-installs | string |  | Packages to install *after* `pip install .`. (these are called with `--force-reinstall`.) |
 | qt | string |  | Version of qt to install (or none if blank). Will also install qt-libs and run tests headlessly if not blank. |
@@ -49,7 +49,7 @@ Standard workflow to setup python and test a python package, in the following or
 | cache-key | string |  | Cache key to use for caching. If not set, no caching will be used. |
 | cache-path | string |  | Path to cache. If not set, no caching will be used. |
 | cache-script | string |  | Script to run to create the cache. If not set, no caching will be used. |
-| coverage-upload | string | artifact | Where to upload coverage data. Options: `'artifact'`, `'codecov'`. If using 'artifact', coverage must be sent to codecov in a separate workflow. (*see upload-coverage.yml*) |
+| coverage-upload | string | codecov | How to upload coverage data. Options are `'artifact'`, `'codecov'`. If using 'artifact', coverage must be sent to codecov in a separate workflow. (*see upload-coverage.yml*) |
 
 **Secrets:**
 
