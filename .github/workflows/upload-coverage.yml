@@ -52,7 +52,26 @@ jobs:
 
       - name: Combine coverage data
         run: |
-          python -Im coverage combine covreports
+          REPO_NAME="${GITHUB_REPOSITORY##*/}"
+          echo "[paths]" > ci_coveragerc
+          echo "source =" >> ci_coveragerc
+          # if src exists, add it to the pathmap
+          if [ -d "src" ]; then
+            echo "    src/" >> ci_coveragerc
+          else
+            echo "    ./" >> ci_coveragerc
+          fi
+          echo "    D:\\a\\$REPO_NAME\\$REPO_NAME" >> ci_coveragerc
+          echo "    D:\\a\\$REPO_NAME\\$REPO_NAME\\src" >> ci_coveragerc
+          echo "    D:\\a\\$REPO_NAME\\$REPO_NAME\\src\\$REPO_NAME" >> ci_coveragerc
+          echo "    /home/runner/work/$REPO_NAME/$REPO_NAME" >> ci_coveragerc
+          echo "    /home/runner/work/$REPO_NAME/$REPO_NAME/src" >> ci_coveragerc
+          echo "    /home/runner/work/$REPO_NAME/$REPO_NAME/src/$REPO_NAME" >> ci_coveragerc
+          echo "    /Users/runner/work/$REPO_NAME/$REPO_NAME" >> ci_coveragerc
+          echo "    /Users/runner/work/$REPO_NAME/$REPO_NAME/src" >> ci_coveragerc
+          echo "    /Users/runner/work/$REPO_NAME/$REPO_NAME/src/$REPO_NAME" >> ci_coveragerc
+          cat ci_coveragerc
+          python -Im coverage combine --debug=pathmap --rcfile=ci_coveragerc covreports
           python -Im coverage xml -o coverage.xml
           python -Im coverage report
           python -Im coverage report --format=markdown >> $GITHUB_STEP_SUMMARY
