@@ -7,103 +7,122 @@ on:
       python-version:
         required: false
         type: string
-        default: "3.x"
-        description: "Python version to use. Passed to `actions/setup-python`."
+        default: 3.x
+        description: Python version to use. Passed to `actions/setup-python`.
       os:
         required: false
         type: string
         default: ubuntu-latest
-        description: "Operating system to use. Passed to `runs-on:`."
+        description: Operating system to use. Passed to `runs-on:`.
       extras:
         required: false
         type: string
         default: test
-        description: "Package extras to install (may use commas for multiples `'test,docs'`). If you don't have an extra named 'test' you should change this."
+        description: >
+          Package extras to install (may use commas for multiples `'test,docs'`).
+          If you don't have an extra named 'test' you should change this.
       pip-install-flags:
         required: false
         type: string
-        default: ""
-        description: "Additional flags to pass to pip install. Can be used for `--editable`, `--no-deps`, etc."
+        description: >
+          Additional flags to pass to pip install.
+          Can be used for `--editable`, `--no-deps`, etc.
       pip-install-pre-release:
         required: false
         type: boolean
         default: false
-        description: "Whether to install pre-releases in the pip install phase with `--pre`."
+        description: Whether to install pre-releases in the pip install phase with `--pre`.
         # example >>> pip-install-pre-release: github.event_name == 'schedule'
       pip-install-min-reqs:
         required: false
         type: boolean
         default: false
-        description: "Whether to install the *minimum* declared dependency versions."
+        description: >
+          Whether to install the *minimum* declared dependency versions.
       pip-pre-installs:
         required: false
         type: string
-        default: ""
-        description: "Packages to install *before* calling `pip install .`"
+        default: ''
+        description: >
+          Packages to install *before* calling `pip install .`
       pip-post-installs:
         required: false
         type: string
-        default: ""
-        description: "Packages to install *after* `pip install .`. (these are called with `--force-reinstall`.)"
+        description: >
+          Packages to install *after* `pip install .`.
+          (these are called with `--force-reinstall`.)
       qt:
         required: false
         type: string
-        default: ""
-        description: "Version of qt to install (or none if blank).  Will also install qt-libs and run tests headlessly if not blank."
+        description: >
+          Version of qt to install (or none if blank).
+          Will also install qt-libs and run tests headlessly if not blank.
       fetch-depth:
         required: false
         type: number
         default: 1
-        description: "The number of commits to fetch. 0 indicates all history for all branches and tags."
+        description: >
+          The number of commits to fetch. 0 indicates all history for all branches and tags.
       python-cache-dependency-path:
         required: false
         type: string
-        default: "pyproject.toml"
-        description: "passed to `actions/setup-python`"
+        default: pyproject.toml
+        description: >
+          passed to `actions/setup-python`
       pytest-args:
         required: false
         type: string
-        default: ""
-        description: "Additional arguments to pass to pytest. Can be used to specify paths or for for `-k`, `-x`, etc."
+        description: >
+          Additional arguments to pass to pytest.
+          Can be used to specify paths or for for `-k`, `-x`, etc.
       fail-on-coverage-error:
         required: false
         type: boolean
         default: true
-        description: "Fail the build if codecov action fails."
+        description: >
+          Fail the build if codecov action fails.
       hatch-build-hooks-enable:
         required: false
         type: boolean
         default: false
-        description: "Value for [`HATCH_BUILD_HOOKS_ENABLE`](https://hatch.pypa.io/latest/config/build/#environment-variables)."
+        description: >
+          Value for
+          [`HATCH_BUILD_HOOKS_ENABLE`](https://hatch.pypa.io/latest/config/build/#environment-variables).
       report-failures:
         required: false
-        type: boolean
-        default: false
-        description: "Whether to create a GitHub issue when a test fails. Autoset to true for cron jobs."
+        type: string
+        description: >
+          (true or false). Whether to create a GitHub issue when a test fails.
+          If not set, will be true for scheduled runs, and false otherwise.
       cache-key:
         required: false
         type: string
-        default: ""
-        description: "Cache key to use for caching. If not set, no caching will be used."
+        description: >
+          Cache key to use for caching. If not set, no caching will be used.
       cache-path:
         required: false
         type: string
-        default: ""
-        description: "Path to cache. If not set, no caching will be used."
+        description: >
+          Path to cache. If not set, no caching will be used.
       cache-script:
         required: false
         type: string
-        default: ""
-        description: "Script to run to create the cache. If not set, no caching will be used."
+        description: >
+          Script to run to create the cache. If not set, no caching will be used.
       coverage-upload:
         required: false
         type: string
-        default: "artifact"
-        description: "Where to upload coverage data. Options: `'artifact'`, `'codecov'`. If using 'artifact', coverage must be sent to codecov in a separate workflow. (*see upload-coverage.yml*)"
+        default: artifact
+        description: >
+          Where to upload coverage data.
+          Options: `'artifact'`, `'codecov'`. If using 'artifact', coverage must
+          be sent to codecov in a separate workflow. (*see upload-coverage.yml*)
     secrets:
-      codecov-token:
+      codecov_token:
         required: false
-        description: "Token for codecov-action. Only used if `pytest-cov-flags` is not empty and coverage-upload is 'codecov'."
+        description: >
+          Token for codecov-action. Only used if `pytest-cov-flags`
+          is not empty and coverage-upload is 'codecov'.
 
 jobs:
   test:
@@ -114,17 +133,8 @@ jobs:
       MIN_REQS_TEST: ${{ inputs.pip-install-min-reqs }}
       USE_CACHE: ${{ inputs.cache-key != '' && inputs.cache-path != '' && 'true' || 'false' }}
       PIP_DISABLE_PIP_VERSION_CHECK: 1
+      REPORT_FAIL: ${{ inputs.report-failures && inputs.report-failures || (github.event_name == 'schedule' && 'true' || 'false')}}
     steps:
-
-      - name: Set CODECOV_TOKEN
-        shell: bash
-        run: |
-          if [ -n "${{ secrets.codecov-token }}" ]; then
-            echo "CODECOV_TOKEN=${{ secrets.codecov-token }}" >> $GITHUB_ENV
-          else
-            echo "CODECOV_TOKEN=${{ secrets.CODECOV_TOKEN }}" >> $GITHUB_ENV
-          fi
-
       - name: Checkout ${{ github.repository }}
         uses: actions/checkout@v4
         with:
@@ -135,7 +145,7 @@ jobs:
         with:
           python-version: ${{ inputs.python-version }}
           cache-dependency-path: ${{ inputs.python-cache-dependency-path }}
-          cache: "pip"
+          cache: pip
 
       - run: python -m pip install --upgrade pip
 
@@ -192,7 +202,7 @@ jobs:
           run: coverage run -p -m pytest --color=yes ${{ inputs.pytest-args }}
 
       - name: Report failure
-        if: ${{ failure() && (inputs.report-failures || github.event_name == 'schedule') }}
+        if: ${{ failure() && env.REPORT_FAIL == 'true'}}
         uses: actions/github-script@v7
         env:
           ACTION_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
@@ -227,7 +237,7 @@ jobs:
               });
               console.log('A new issue was created to report a failing test.');
             }
-      
+
       - name: Generage coverage report
         if: inputs.coverage-upload == 'codecov'
         run: |
@@ -241,7 +251,7 @@ jobs:
         with:
           fail_ci_if_error: ${{ inputs.fail-on-coverage-error }}
           verbose: true
-          token: ${{ env.CODECOV_TOKEN }}
+          token: ${{ secrets.codecov_token }}
 
       - name: Generate UUID
         if: inputs.coverage-upload == 'artifact'

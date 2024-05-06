@@ -7,38 +7,33 @@ on:
         required: false
         type: boolean
         default: true
-        description: "Fail if codecov action fails."
+        description: Fail if codecov action fails.
       artifact-pattern:
         required: false
         type: string
-        default: "covreport-*"
-        description: "glob pattern to the artifacts that should be downloaded for coverage reports. This should match the `name` you used for the `upload-artifact` step in the job that generates the coverage reports. (*This default matches the name in test-pyrepo.yml*)"
+        default: covreport-*
+        description: >
+          glob pattern to the artifacts that should be downloaded for coverage reports.
+          This should match the `name` you used for the `upload-artifact` step in the
+          job that generates the coverage reports.
+          (*This default matches the name in test-pyrepo.yml*)
     secrets:
-      codecov-token:
+      codecov_token:
         required: false
-        description: "Token for codecov-action."
+        description: Token for codecov-action.
 
 jobs:
   upload_coverage:
     name: Upload coverage
     runs-on: ubuntu-latest
     steps:
-      - name: Set CODECOV_TOKEN
-        shell: bash
-        run: |
-          # merge inherited secret with explicit secret
-          if [ -n "${{ secrets.codecov-token }}" ]; then
-              echo "CODECOV_TOKEN=${{ secrets.codecov-token }}" >> $GITHUB_ENV
-          else
-              echo "CODECOV_TOKEN=${{ secrets.CODECOV_TOKEN }}" >> $GITHUB_ENV
-          fi
 
       - name: Checkout ${{ github.repository }}
         uses: actions/checkout@v4
 
       - uses: actions/setup-python@v5
         with:
-          python-version: "3.x"
+          python-version: 3.x
 
       - name: Install coverage
         run: pip install coverage
@@ -46,7 +41,7 @@ jobs:
       - name: Download coverage data
         uses: actions/download-artifact@v4
         with:
-          pattern: ${{ inputs.artifact-pattern }} 
+          pattern: ${{ inputs.artifact-pattern }}
           path: covreports
           merge-multiple: true
 
@@ -79,4 +74,4 @@ jobs:
         with:
           fail_ci_if_error: ${{ inputs.fail-on-coverage-error }}
           verbose: true
-          token: ${{ env.CODECOV_TOKEN }}
+          token: ${{ secrets.CODECOV_TOKEN }}

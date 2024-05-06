@@ -11,43 +11,38 @@ on:
       dependency-ref:
         required: false
         type: string
-        default: ""
         description: Ref to checkout in dependency-repo. Defaults to HEAD in default branch.
       python-version:
         required: false
         type: string
-        default: "3.x"
-        description: "Python version to use. Passed to `actions/setup-python`."
+        default: 3.x
+        description: Python version to use. Passed to `actions/setup-python`.
       os:
         required: false
         type: string
         default: ubuntu-latest
-        description: "Operating system to use. Passed to `runs-on:`."
+        description: Operating system to use. Passed to `runs-on:`.
       host-extras:
         required: false
         type: string
-        default: ""
         description: Extras to use when installing host (package running this workflow).
       dependency-extras:
         required: false
         type: string
-        default: "test"
+        default: test
         description: Extras to use when installing dependency-repo.
       qt:
         required: false
         type: string
-        default: ""
-        description: "Version of Qt to install."
+        description: Version of Qt to install.
       post-install-cmd:
         required: false
         type: string
-        default: ""
         description: Command(s) to run after installing dependencies.
       pytest-args:
         required: false
         type: string
-        default: ""
-        description: "Additional arguments to pass to pytest. Can be used to specify paths or for for `-k`, `-x`, etc."
+        description: Additional arguments to pass to pytest. Can be used to specify paths or for for `-k`, `-x`, etc.
 
 jobs:
   test:
