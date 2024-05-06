@@ -11,7 +11,7 @@ as well if you find them useful for your own projects.
 
 ## Run python tests
 
-[`uses: pyapp-kit/workflows/.github/workflows/test-pyrepo.yml@v1`](.github/workflows/test-pyrepo.yml)
+[`uses: pyapp-kit/workflows/.github/workflows/test-pyrepo.yml@v2`](.github/workflows/test-pyrepo.yml)
 
 Standard workflow to setup python and test a python package, in the following order:
 
@@ -72,7 +72,7 @@ name: CI
 
 jobs:
   run_tests:
-    uses: pyapp-kit/workflows/.github/workflows/test-pyrepo.yml@v1
+    uses: pyapp-kit/workflows/.github/workflows/test-pyrepo.yml@v2
     with:
       os: ${{ matrix.os }}
       python-version: ${{ matrix.python-version }}
@@ -86,6 +86,11 @@ jobs:
 
 #### Testing depenency pre-releases on a schedule
 
+Note that the default value for `report-failures` is `${{ github.event_name == 'schedule' }}`, so you don't need to specify it unless you want to override the
+default.  However, you may wish to use
+`pip-install-pre-release: ${{ github.event_name == 'schedule' }}`
+to test pre-release versions when triggered by a cron job.
+
 ```yaml
 name: CI
 
@@ -95,14 +100,13 @@ on:
 
 jobs:
   run_tests:
-    uses: pyapp-kit/workflows/.github/workflows/test-pyrepo.yml@v1
+    uses: pyapp-kit/workflows/.github/workflows/test-pyrepo.yml@v2
     with:
       os: ${{ matrix.os }}
       python-version: ${{ matrix.python-version }}
       # Test pre-release versions when triggered by a schedule
       # and open an issue if the tests fail
       pip-install-pre-release: ${{ github.event_name == 'schedule' }}
-      report-failures: ${{ github.event_name == 'schedule' }}
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
@@ -122,7 +126,7 @@ name: CI
 
 jobs:
   run_tests:
-    uses: pyapp-kit/workflows/.github/workflows/test-pyrepo.yml@v1
+    uses: pyapp-kit/workflows/.github/workflows/test-pyrepo.yml@v2
     with:
       os: ${{ matrix.os }}
       python-version: ${{ matrix.python-version }}
@@ -146,12 +150,12 @@ name: CI
 
 jobs:
   tests:
-    uses: pyapp-kit/workflows/.github/workflows/test-pyrepo.yml@v1
+    uses: pyapp-kit/workflows/.github/workflows/test-pyrepo.yml@v2
     with:
       os: ${{ matrix.os }}
       python-version: ${{ matrix.python-version }}
       # changing this to "artifact" prevents uploading to codecov here,
-      # instead it creates and uploads an artifact with the coverage data
+      # instead it uploads an artifact with the coverage data
       coverage-upload: artifact
     strategy:
       fail-fast: false
@@ -159,19 +163,18 @@ jobs:
         os: [ubuntu-latest, macos-latest, windows-latest]
         python-version: ["3.10", "3.11", "3.12"]
 
-  # now add an additional job that needs the previous job
-  # which uses the 'upload-coverage.yml' workflow
+  # now add an additional job to combine and upload the coverage
   upload_coverage:
     if: always()
     needs: [tests]
-    uses: pyapp-kit/workflows/.github/workflows/upload-coverage.yml@v1
+    uses: pyapp-kit/workflows/.github/workflows/upload-coverage.yml@v2
     secrets:
-      codecov-token: ${{ secrets.CODECOV_TOKEN }}
+      codecov_token: ${{ secrets.CODECOV_TOKEN }}
 ```
 
 ## Test Dependent Packages
 
-[`uses: pyapp-kit/workflows/.github/workflows/test-dependents.yml@v1`](.github/workflows/test-dependents.yml)
+[`uses: pyapp-kit/workflows/.github/workflows/test-dependents.yml@v2`](.github/workflows/test-dependents.yml)
 
 This workflow is useful when your package is a dependency of other packages, and you
 would like to ensure that your changes don't break those packages.
@@ -214,7 +217,7 @@ name: CI
 
 jobs:
   test-package-b:
-    uses: pyapp-kit/workflows/.github/workflows/test-dependents.yml@v1
+    uses: pyapp-kit/workflows/.github/workflows/test-dependents.yml@v2
     with:
       os: ${{ matrix.os }}
       python-version: ${{ matrix.python-version }}
@@ -230,7 +233,7 @@ jobs:
 
 ## Combine and Upload Coverage Artifacts
 
-[`uses: pyapp-kit/workflows/.github/workflows/upload-coverage.yml@v1`](.github/workflows/upload-coverage.yml)
+[`uses: pyapp-kit/workflows/.github/workflows/upload-coverage.yml@v2`](.github/workflows/upload-coverage.yml)
 
 This workflow is designed to be used in conjunction with the `test-pyrepo.yml` workflow
 when the `coverage-upload` input is set to `artifact`.
