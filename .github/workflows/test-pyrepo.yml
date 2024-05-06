@@ -121,8 +121,7 @@ on:
       codecov_token:
         required: false
         description: >
-          Token for codecov-action. Only used if `pytest-cov-flags`
-          is not empty and coverage-upload is 'codecov'.
+          Token for codecov-action. Only used if `coverage-upload` is 'codecov'.
 
 jobs:
   test:

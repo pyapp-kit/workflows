@@ -19,7 +19,7 @@ Standard workflow to setup python and test a python package, in the following or
 2. Runs [`actions/setup-python`](https://github.com/actions/setup-python) with `python-version`
 3. If `inputs.qt != ''`: Installs Qt libs using [tlambert03/setup-qt-libs](https://github.comtlambert03/setup-qt-libs)
 4. Installs dependencies using `pip install .[extras]`
-5. Runs `pytest --cov --cov-report=xml inputs.pytest-args` unless overridden.
+5. Runs `coverage run -m pytest ${{inputs.pytest-args}}` unless overridden.
    - If `inputs.qt != ''`: Runs headlessly using [`aganders3/headless-gui`](https://github.com/actions/aganders3/headless-gui)
 6. Uploads coverage reports using [`codecov/codecov-action`](https://github.com/codecov/codecov-action)
 7. If `report-failures != ''` Opens an issue to report failures.  Useful for cron jobs for pre-release testing.
@@ -55,7 +55,7 @@ Standard workflow to setup python and test a python package, in the following or
 
 | Input | Description |
 | --- | --- |
-| codecov_token | Token for codecov-action. Only used if `pytest-cov-flags` is not empty and coverage-upload is 'codecov'. |
+| codecov_token | Token for codecov-action. Only used if `coverage-upload` is 'codecov'. |
 <!-- /pyrepo-table -->
 
 See complete up-to-date list of options in [`test-pyrepo.yml`](.github/workflows/test-pyrepo.yml#L5)
