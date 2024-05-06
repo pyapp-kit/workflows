@@ -163,6 +163,7 @@ jobs:
   # now add an additional job that needs the previous job
   # which uses the 'upload-coverage.yml' workflow
   upload_coverage:
+    if: always()  # always run this job
     needs: [tests]
     uses: pyapp-kit/workflows/.github/workflows/upload-coverage.yml@v1
     secrets:

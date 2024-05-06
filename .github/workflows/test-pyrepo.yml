@@ -69,7 +69,7 @@ on:
         required: false
         type: string
         default: "--cov --cov-report=xml --cov-report=term-missing"
-        description: "Flags to pass to pytest-cov. Can be used for `--cov-fail-under`, `--cov-branch`, etc. Note: it's best to specify `[tool.coverage.run] source = ['your_package']`."
+        description: "DEPRECATED: Flags to pass to pytest-cov. Can be used for `--cov-fail-under`, `--cov-branch`, etc. Note: it's best to specify `[tool.coverage.run] source = ['your_package']`."
       fail-on-coverage-error:
         required: false
         type: boolean
@@ -120,18 +120,6 @@ jobs:
       MIN_REQS_TEST: ${{ inputs.pip-install-min-reqs }}
       USE_CACHE: ${{ inputs.cache-key != '' && inputs.cache-path != '' && 'true' || 'false' }}
     steps:
-      - name: Generate UUID
-        shell: bash
-        run: |
-          if [[ "$RUNNER_OS" == "Windows" ]]; then
-            echo "UUID=$(powershell -Command "[guid]::NewGuid().ToString()")" >> $GITHUB_ENV
-          else
-            echo "UUID=$(uuidgen)" >> $GITHUB_ENV
-          fi
-
-      - name: Set COVERAGE_FILE
-        shell: bash
-        run: echo "COVERAGE_FILE=.coverage.$UUID" >> $GITHUB_ENV
 
       - name: Set CODECOV_TOKEN
         shell: bash
@@ -200,13 +188,13 @@ jobs:
 
       - name: Run tests
         if: ${{ inputs.qt == '' }}
-        run: python -m pytest --color=yes ${{ inputs.pytest-cov-flags }} ${{ inputs.pytest-args }}
+        run: coverage run -p -m pytest --color=yes ${{ inputs.pytest-args }}
 
       - name: Run tests (headless)
         if: ${{ inputs.qt != '' }}
         uses: aganders3/headless-gui@v2
         with:
-          run: python -m pytest --color=yes ${{ inputs.pytest-cov-flags }} ${{ inputs.pytest-args }}
+          run: coverage run -p -m pytest --color=yes ${{ inputs.pytest-args }}
 
       - name: Report failure
         # common usage might be: report-failures: github.event_name == 'schedule'
@@ -245,9 +233,15 @@ jobs:
               });
               console.log('A new issue was created to report a failing test.');
             }
+      
+      - name: Save coverage data
+        if: inputs.coverage-upload == 'codecov'
+        run: |
+          coverage combine --append
+          coverage xml -o coverage.xml
 
       - name: codecov v4
-        if: inputs.pytest-cov-flags != '' && inputs.coverage-upload == 'codecov'
+        if: inputs.coverage-upload == 'codecov'
         uses: codecov/codecov-action@v4
         with:
           fail_ci_if_error: ${{ inputs.fail-on-coverage-error }}
@@ -256,7 +250,7 @@ jobs:
 
       - name: Upload coverage data
         uses: actions/upload-artifact@v4
-        if: inputs.pytest-cov-flags != '' && inputs.coverage-upload == 'artifact'
+        if: inputs.coverage-upload == 'artifact'
         with:
-          name: covreport-${{ inputs.os }}-py${{ inputs.python-version }}-${{ env.UUID }}
+          name: covreport-${{ inputs.os }}-py${{ inputs.python-version }}-${{ github.run_id }}-${{ github.job }}
           path: ./.coverage*
