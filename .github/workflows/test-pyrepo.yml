@@ -119,6 +119,7 @@ jobs:
       HATCH_BUILD_HOOKS_ENABLE: ${{ inputs.hatch-build-hooks-enable }}
       MIN_REQS_TEST: ${{ inputs.pip-install-min-reqs }}
       USE_CACHE: ${{ inputs.cache-key != '' && inputs.cache-path != '' && 'true' || 'false' }}
+      PIP_DISABLE_PIP_VERSION_CHECK: 1
     steps:
 
       - name: Set CODECOV_TOKEN
