@@ -65,11 +65,6 @@ on:
         type: string
         default: ""
         description: "Additional arguments to pass to pytest. Can be used to specify paths or for for `-k`, `-x`, etc."
-      pytest-cov-flags:
-        required: false
-        type: string
-        default: "--cov --cov-report=xml --cov-report=term-missing"
-        description: "DEPRECATED: Flags to pass to pytest-cov. Can be used for `--cov-fail-under`, `--cov-branch`, etc. Note: it's best to specify `[tool.coverage.run] source = ['your_package']`."
       fail-on-coverage-error:
         required: false
         type: boolean
@@ -84,8 +79,7 @@ on:
         required: false
         type: boolean
         default: false
-        description: "Whether to create a GitHub issue when a test fails. Good for cron jobs."
-        # example >>> report-failures: github.event_name == 'schedule'
+        description: "Whether to create a GitHub issue when a test fails. Autoset to true for cron jobs."
       cache-key:
         required: false
         type: string
@@ -104,7 +98,7 @@ on:
       coverage-upload:
         required: false
         type: string
-        default: "codecov"
+        default: "artifact"
         description: "Where to upload coverage data. Options: `'artifact'`, `'codecov'`. If using 'artifact', coverage must be sent to codecov in a separate workflow. (*see upload-coverage.yml*)"
     secrets:
       codecov-token:
@@ -198,8 +192,7 @@ jobs:
           run: coverage run -p -m pytest --color=yes ${{ inputs.pytest-args }}
 
       - name: Report failure
-        # common usage might be: report-failures: github.event_name == 'schedule'
-        if: ${{ failure() && inputs.report-failures }}
+        if: ${{ failure() && (inputs.report-failures || github.event_name == 'schedule') }}
         uses: actions/github-script@v7
         env:
           ACTION_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
@@ -235,11 +228,12 @@ jobs:
               console.log('A new issue was created to report a failing test.');
             }
       
-      - name: Save coverage data
+      - name: Generage coverage report
         if: inputs.coverage-upload == 'codecov'
         run: |
-          coverage combine --append
-          coverage xml -o coverage.xml
+          python -m combine --append
+          python -m coverage xml -o coverage.xml
+          python -m coverage report
 
       - name: codecov v4
         if: inputs.coverage-upload == 'codecov'
