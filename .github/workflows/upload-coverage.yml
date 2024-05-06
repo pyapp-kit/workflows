@@ -59,9 +59,9 @@ jobs:
           if [ -d "src" ]; then
             echo "    src/" >> ci_coveragerc
           else
-            echo "    ./" >> ci_coveragerc
+            echo "    ${GITHUB_WORKSPACE}" >> ci_coveragerc
           fi
-          echo "    */site-packages/*" >> ci_coveragerc
+          echo "    */site-packages/" >> ci_coveragerc
           echo "    D:\\a\\$REPO_NAME\\$REPO_NAME" >> ci_coveragerc
           echo "    D:\\a\\$REPO_NAME\\$REPO_NAME\\src" >> ci_coveragerc
           echo "    D:\\a\\$REPO_NAME\\$REPO_NAME\\src\\$REPO_NAME" >> ci_coveragerc
