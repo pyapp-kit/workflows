@@ -191,6 +191,9 @@ jobs:
         if: ${{ inputs.pip-post-installs != '' }}
         run: python -m pip install ${{ inputs.pip-post-installs }} --force-reinstall
 
+      - name: Install coverage
+        run: python -m pip install coverage
+
       - name: Run tests
         if: ${{ inputs.qt == '' }}
         run: coverage run -p -m pytest --color=yes ${{ inputs.pytest-args }}
@@ -241,7 +244,7 @@ jobs:
       - name: Generage coverage report
         if: inputs.coverage-upload == 'codecov'
         run: |
-          python -m combine --append
+          python -m coverage combine --append
           python -m coverage xml -o coverage.xml
           python -m coverage report
 
