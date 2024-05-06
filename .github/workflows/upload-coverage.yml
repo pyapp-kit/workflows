@@ -61,6 +61,7 @@ jobs:
           else
             echo "    ./" >> ci_coveragerc
           fi
+          echo "    */site-packages/*" >> ci_coveragerc
           echo "    D:\\a\\$REPO_NAME\\$REPO_NAME" >> ci_coveragerc
           echo "    D:\\a\\$REPO_NAME\\$REPO_NAME\\src" >> ci_coveragerc
           echo "    D:\\a\\$REPO_NAME\\$REPO_NAME\\src\\$REPO_NAME" >> ci_coveragerc
