@@ -173,6 +173,8 @@ jobs:
           python -m pip install git+https://github.com/tlambert03/hatch-min-requirements.git
           python -c "from hatch_min_requirements import patch_pyproject; patch_pyproject('pyproject.toml', 'min-reqs');"
           python -m pip install ${{ inputs.pip-install-flags }} .[min-reqs,${{ inputs.extras }}]
+        env:
+          MIN_REQS_PIN_UNCONSTRAINED: false
 
       - name: Install dependencies ${{ inputs.pip-install-pre-release && '--pre' || ''}}
         if: ${{ !inputs.pip-install-min-reqs }}
