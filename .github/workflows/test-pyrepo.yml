@@ -145,6 +145,7 @@ jobs:
           python-version: ${{ inputs.python-version }}
           cache-dependency-path: ${{ inputs.python-cache-dependency-path }}
           cache: pip
+          allow-prereleases: true
 
       - run: python -m pip install --upgrade pip
 

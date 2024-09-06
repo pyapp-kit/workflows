@@ -34,6 +34,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: 3.x
+          allow-prereleases: true
 
       - name: Install coverage
         run: pip install coverage
