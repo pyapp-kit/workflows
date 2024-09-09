@@ -274,3 +274,4 @@ jobs:
         with:
           name: covreport-${{ inputs.os }}-py${{ inputs.python-version }}-${{ env.UUID }}
           path: ./.coverage*
+          include-hidden-files: true
