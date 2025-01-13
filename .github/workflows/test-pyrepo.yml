@@ -269,7 +269,7 @@ jobs:
           fi
 
       - name: Upload coverage data
-        uses: actions/upload-artifact@v4.4.3
+        uses: actions/upload-artifact@v4.6.0
         if: inputs.coverage-upload == 'artifact'
         with:
           name: covreport-${{ inputs.os }}-py${{ inputs.python-version }}-${{ env.UUID }}
