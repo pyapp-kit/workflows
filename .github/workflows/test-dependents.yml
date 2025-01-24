@@ -71,7 +71,7 @@ jobs:
 
       - name: Setup Headless Display
         if: ${{ inputs.qt != '' }}
-        uses: pyvista/setup-headless-display-action@v2
+        uses: pyvista/setup-headless-display-action@v3
         with:
           qt: true
 
