@@ -252,7 +252,7 @@ jobs:
 
       - name: codecov v4
         if: inputs.coverage-upload == 'codecov'
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v5
         with:
           fail_ci_if_error: ${{ inputs.fail-on-coverage-error }}
           verbose: true
