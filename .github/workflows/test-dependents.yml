@@ -74,6 +74,7 @@ jobs:
         uses: pyvista/setup-headless-display-action@v4
         with:
           qt: true
+          wm: herbstluftwm
 
       - name: Install dependencies
         run: |
