@@ -88,10 +88,10 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install -U pip
-          python -m pip install ./${{ inputs.dependency-repo }} ${{ inputs.dependency-extras != '' && format('[{0}]', inputs.dependency-extras) || '' }}${{ inputs.dependency-group != '' && format('--group {0}', inputs.dependency-group) || '' }}
+          python -m pip install ./${{ inputs.dependency-repo }} ${{ inputs.dependency-extras != '' && format('[{0}]', inputs.dependency-extras) || '' }} ${{ inputs.dependency-group != '' && format('--group {0}', inputs.dependency-group) || '' }}
           echo "##############################################################"
           echo "##############################################################"
-          python -m pip install ./${{ github.repository }} ${{ inputs.host-extras != '' && format('[{0}]', inputs.host-extras) || '' }}${{ inputs.host-group != '' && format('--group {0}', inputs.host-group) || '' }}
+          python -m pip install ./${{ github.repository }} ${{ inputs.host-extras != '' && format('[{0}]', inputs.host-extras) || '' }} ${{ inputs.host-group != '' && format('--group {0}', inputs.host-group) || '' }}
 
       - name: Install Qt (${{ inputs.qt }})
         if: ${{ inputs.qt != '' }}
