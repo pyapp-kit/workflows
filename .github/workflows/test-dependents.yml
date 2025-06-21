@@ -26,11 +26,20 @@ on:
         required: false
         type: string
         description: Extras to use when installing host (package running this workflow).
+      host-group:
+        required: false
+        type: string
+        description: Group to use when installing host (package running this workflow).
       dependency-extras:
         required: false
         type: string
         default: test
         description: Extras to use when installing dependency-repo.
+      dependency-group:
+        required: false
+        type: string
+        default: ""
+        description: Dependency group to use when installing dependency-repo.
       qt:
         required: false
         type: string
@@ -79,10 +88,10 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install -U pip
-          python -m pip install ./${{ inputs.dependency-repo }}${{ inputs.dependency-extras != '' && format('[{0}]', inputs.dependency-extras) || '' }}
+          python -m pip install ./${{ inputs.dependency-repo }}${{ inputs.dependency-extras != '' && format('[{0}]', inputs.dependency-extras) || '' }}${{ inputs.dependency-group != '' && format('--group {0}', inputs.dependency-group) || '' }}
           echo "##############################################################"
           echo "##############################################################"
-          python -m pip install ./${{ github.repository }}${{ inputs.host-extras != '' && format('[{0}]', inputs.host-extras) || '' }}
+          python -m pip install ./${{ github.repository }}${{ inputs.host-extras != '' && format('[{0}]', inputs.host-extras) || '' }}${{ inputs.host-group != '' && format('--group {0}', inputs.host-group) || '' }}
 
       - name: Install Qt (${{ inputs.qt }})
         if: ${{ inputs.qt != '' }}

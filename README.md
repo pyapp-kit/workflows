@@ -199,7 +199,9 @@ would like to ensure that your changes don't break those packages.
 | python-version | string | 3.x | Python version to use. Passed to `actions/setup-python`. |
 | os | string | ubuntu-latest | Operating system to use. Passed to `runs-on:`. |
 | host-extras | string |  | Extras to use when installing host (package running this workflow). |
+| host-group | string |  | Group to use when installing host (package running this workflow). |
 | dependency-extras | string | test | Extras to use when installing dependency-repo. |
+| dependency-group | string | test | Group to use when installing dependency-repo. |
 | qt | string |  | Version of Qt to install. |
 | post-install-cmd | string |  | Command(s) to run after installing dependencies. |
 | pytest-args | string |  | Additional arguments to pass to pytest. Can be used to specify paths or for for `-k`, `-x`, etc. |
@@ -223,7 +225,7 @@ jobs:
       python-version: ${{ matrix.python-version }}
       dependency-repo: some-org/package-b
       dependency-ref: ${{ matrix.package-b-version }}
-      dependency-extras: "test"  # Extras to use when installing dependency-repo.
+      dependency-group: "test"  # Group to use when installing dependency-repo.
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest]
