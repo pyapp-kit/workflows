@@ -208,7 +208,7 @@ jobs:
 
       - name: Report failure
         if: ${{ failure() && env.REPORT_FAIL == 'true'}}
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         env:
           ACTION_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
           WORKFLOW_NAME: ${{ github.workflow }}
